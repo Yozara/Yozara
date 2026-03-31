@@ -1,4 +1,6 @@
-// --- Custom Animated Particle Background ---
+const { useState, useEffect, useRef } = React;
+const { motion, useScroll, useTransform } = FramerMotion;
+// Lucide icons will be available via Lucide.IconName// --- Custom Animated Particle Background ---
 const ParticleBackground = () => {
   const [particles, setParticles] = useState([]);
 
