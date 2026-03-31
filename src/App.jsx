@@ -1,7 +1,3 @@
-import React, { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { Sparkles, Brain, Compass, UserCircle, ArrowRight, Mail, Zap } from "lucide-react";
-
 // --- Custom Animated Particle Background ---
 const ParticleBackground = () => {
   const [particles, setParticles] = useState([]);
