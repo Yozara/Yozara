@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YOZARA | AI Anime & Manga Recommendations</title>
+    <title>YOZARA | AI Anime, Manga & Manhwa Universe</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,17 +26,17 @@
                     },
                     colors: {
                         yozora: {
-                            dark: '#050511',
-                            purple: '#6d28d9',
+                            dark: '#030310', // Darker, almost black for night sky
+                            purple: '#4c1d95',
                             neon: '#00f3ff',
-                            pink: '#f472b6'
+                            pink: '#ec4899',
+                            midnight: '#07071c'
                         }
                     },
                     animation: {
                         'blob': 'blob 7s infinite',
                         'float': 'float 6s ease-in-out infinite',
-                        'scroll-left': 'scrollLeft 30s linear infinite',
-                        'scroll-right': 'scrollRight 30s linear infinite',
+                        'rain': 'rain 0.5s linear infinite',
                         'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
                     },
                     keyframes: {
@@ -50,13 +50,9 @@
                             '0%, 100%': { transform: 'translateY(0)' },
                             '50%': { transform: 'translateY(-20px)' },
                         },
-                        scrollLeft: {
-                            '0%': { transform: 'translateX(0)' },
-                            '100%': { transform: 'translateX(-50%)' },
-                        },
-                        scrollRight: {
-                            '0%': { transform: 'translateX(-50%)' },
-                            '100%': { transform: 'translateX(0)' },
+                        rain: {
+                            '0%': { transform: 'translateY(-100px)' },
+                            '100%': { transform: 'translateY(100vh)' },
                         },
                         fadeInUp: {
                             '0%': { opacity: '0', transform: 'translateY(40px)' },
@@ -71,7 +67,7 @@
     <style>
         /* Custom Styles for things Tailwind is too verbose for */
         body {
-            background-color: #050511;
+            background-color: #030310;
             color: white;
             overflow-x: hidden;
             cursor: none; /* Custom cursor */
@@ -113,6 +109,16 @@
             transform: translate(-50%, -50%) scale(1.5);
             background-color: rgba(0, 243, 255, 0.2);
         }
+        
+        /* Rain effect particles */
+        .rain-drop {
+            position: absolute;
+            top: -100px;
+            width: 1px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            animation: rain 0.5s linear infinite;
+        }
     </style>
 </head>
 <body>
@@ -121,21 +127,10 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // High-quality aesthetic placeholders for the anime/manga universe vibe
-        const BACKGROUND_IMAGES = [
-            "https://images.unsplash.com/photo-1618336753974-aae8e04506aa?auto=format&fit=crop&q=80&w=800",
-            "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?auto=format&fit=crop&q=80&w=800",
-            "https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&q=80&w=800",
-            "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&q=80&w=800",
-            "https://images.unsplash.com/photo-1605806616949-1e87b487cb2a?auto=format&fit=crop&q=80&w=800",
-            "https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&q=80&w=800"
-        ];
-
-        const FEATURE_ARTWORKS = [
-            { title: "Domain Expansion", img: "https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?auto=format&fit=crop&q=80&w=600" },
-            { title: "Cyber City", img: "https://images.unsplash.com/photo-1515630278258-407f66498911?auto=format&fit=crop&q=80&w=600" },
-            { title: "Estate Builder", img: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=600" }
-        ];
+        // Image URLs for specific content (Illustrative, fan-art style)
+        const GOJO_IMAGE_URL = "https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?auto=format&fit=crop&q=80&w=600";
+        const GED_IMAGE_URL = "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=600";
+        const LIGHT_IMAGE_URL = "https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&q=80&w=600";
 
         // Component: Custom Cursor
         const CustomCursor = () => {
@@ -177,28 +172,34 @@
             );
         };
 
-        // Component: Netflix-Style Marquee Background
-        const BackgroundMarquee = () => {
-            // Duplicate images to create a seamless loop
-            const row1 = [...BACKGROUND_IMAGES, ...BACKGROUND_IMAGES];
-            const row2 = [...BACKGROUND_IMAGES.reverse(), ...BACKGROUND_IMAGES].reverse();
+        // Component: Rainy Night Sky Background
+        const RainyNightSky = () => {
+            const rainDrops = Array.from({ length: 50 }, (_, i) => ({
+                id: i,
+                left: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 1}s`,
+                animationDuration: `${0.4 + Math.random() * 0.2}s`,
+            }));
 
             return (
-                <div className="absolute inset-0 z-0 overflow-hidden opacity-20 pointer-events-none">
-                    <div className="absolute inset-0 bg-gradient-to-b from-yozora-dark via-transparent to-yozora-dark z-10"></div>
-                    <div className="absolute inset-0 bg-yozora-dark/60 z-10"></div>
+                <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-yozora-dark">
+                    {/* Deep night sky gradient and star field */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-yozora-dark via-yozora-midnight to-yozora-dark opacity-100 z-10"></div>
+                    <div className="absolute inset-0 opacity-10 z-10" style={{ backgroundImage: 'radial-gradient(white, rgba(255,255,255,0.2) 2px, transparent 40px)', backgroundSize: '100px 100px' }}></div>
                     
-                    <div className="flex flex-col gap-4 transform -rotate-12 scale-125 -translate-y-24">
-                        <div className="flex gap-4 w-[200%] animate-scroll-left">
-                            {row1.map((src, i) => (
-                                <img key={i} src={src} className="w-64 h-96 object-cover rounded-md shadow-2xl" alt="Anime Background" />
-                            ))}
-                        </div>
-                        <div className="flex gap-4 w-[200%] animate-scroll-right -ml-48">
-                            {row2.map((src, i) => (
-                                <img key={i} src={src} className="w-64 h-96 object-cover rounded-md shadow-2xl" alt="Anime Background" />
-                            ))}
-                        </div>
+                    {/* Rain particles */}
+                    <div className="absolute inset-0 z-20">
+                        {rainDrops.map((drop) => (
+                            <div 
+                                key={drop.id} 
+                                className="rain-drop" 
+                                style={{ 
+                                    left: drop.left, 
+                                    animationDelay: drop.left,
+                                    animationDuration: drop.animationDuration
+                                }} 
+                            />
+                        ))}
                     </div>
                 </div>
             );
@@ -226,12 +227,19 @@
                 }, 1500);
             };
 
+            const universeSpotlights = [
+                { type: "ANIME", title: "Jujutsu Kaisen | Gojo Satoru", match: 98, img: GOJO_IMAGE_URL, desc: "AI predicts a near-perfect match. Master cursed energy alongside the user of the Six Eyes." },
+                { type: "MANHWA", title: "The Greatest Estate Developer", match: 96, img: GED_IMAGE_URL, desc: "An engineer's logic meets a fantasy world. Watch how to build an empire, from scratch." },
+                { type: "MANGA", title: "Death Note | Light Yagami", match: 99, img: LIGHT_IMAGE_URL, desc: "The original genius thriller. AI analysis: You'll be hooked on this game of gods and humans." },
+            ];
+
             return (
                 <div className="relative min-h-screen font-sans selection:bg-yozora-neon selection:text-black">
                     <CustomCursor />
+                    <RainyNightSky />
                     
-                    {/* Glowing Orbs Background */}
-                    <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+                    {/* Glowing Orbs Background (Overlayed on rain for depth) */}
+                    <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none z-30">
                         <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-yozora-purple rounded-full mix-blend-screen filter blur-[120px] opacity-40 animate-blob"></div>
                         <div className="absolute top-[20%] right-[-10%] w-96 h-96 bg-yozora-neon rounded-full mix-blend-screen filter blur-[120px] opacity-30 animate-blob animation-delay-2000"></div>
                         <div className="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-yozora-pink rounded-full mix-blend-screen filter blur-[120px] opacity-30 animate-blob animation-delay-4000"></div>
@@ -250,9 +258,7 @@
                     </nav>
 
                     {/* Hero Section */}
-                    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-                        <BackgroundMarquee />
-                        
+                    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 z-10">
                         <div className="relative z-20 text-center px-4 max-w-4xl mx-auto mt-16">
                             <div className={`transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
                                 <h1 className="font-display text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter mb-6 text-glow">
@@ -283,62 +289,68 @@
                     </section>
 
                     {/* Features Section */}
-                    <section className="py-32 px-6 relative z-10">
+                    <section className="py-32 px-6 relative z-10 bg-yozora-dark/80 backdrop-blur-sm">
                         <div className="max-w-7xl mx-auto">
                             <div className="text-center mb-20">
                                 <h2 className="font-display text-4xl md:text-5xl font-bold mb-4">Discover the <span className="text-transparent bg-clip-text bg-gradient-to-r from-yozora-neon to-yozora-purple">Unknown</span></h2>
-                                <p className="text-gray-400 max-w-2xl mx-auto">Stop searching. Start experiencing. Yozara learns your tastes and unlocks worlds you never knew existed.</p>
+                                <p className="text-gray-400 max-w-2xl mx-auto">Our neural engines decode your taste to unlock worlds you never imagined.</p>
                             </div>
 
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                                {/* Left: Feature Text Cards */}
-                                <div className="space-y-6">
-                                    {[
-                                        { icon: "fa-brain", title: "AI-Powered Recommendations", desc: "Our neural engine analyzes thousands of plot points, art styles, and pacing metrics to find your perfect match." },
-                                        { icon: "fa-layer-group", title: "Cross-Platform Discovery", desc: "Seamlessly jump between Anime, Manga, and Manhwa. Loved Solo Leveling? Here is the anime that matches its intensity." },
-                                        { icon: "fa-user-astronaut", title: "Personalized Universe", desc: "Create your own curated library. Track progress, rate episodes, and watch your recommendation algorithm evolve." }
-                                    ].map((feature, idx) => (
-                                        <div key={idx} className="glass-panel p-8 rounded-2xl hover:-translate-y-2 transition-transform duration-300 group">
-                                            <div className="w-14 h-14 rounded-full bg-yozora-purple/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                                                <i className={`fa-solid ${feature.icon} text-2xl text-yozora-neon`}></i>
-                                            </div>
-                                            <h3 className="text-2xl font-bold mb-3">{feature.title}</h3>
-                                            <p className="text-gray-400 leading-relaxed">{feature.desc}</p>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                {[
+                                    { icon: "fa-brain", title: "AI-Powered Recommendations", desc: "Our neural engine analyzes thousands of plot points, art styles, and pacing metrics to find your perfect match." },
+                                    { icon: "fa-layer-group", title: "Cross-Platform Discovery", desc: "Seamlessly jump between Anime, Manga, and Manhwa. AI connects the dots between different worlds." },
+                                    { icon: "fa-user-astronaut", title: "Personalized Universe", desc: "Curate your own library. Track progress and watch your recommendation algorithm evolve with your tastes." }
+                                ].map((feature, idx) => (
+                                    <div key={idx} className="glass-panel p-8 rounded-2xl hover:-translate-y-2 hover:border-yozora-neon/30 hover:shadow-[0_0_20px_rgba(0,243,255,0.1)] transition-all duration-300 group">
+                                        <div className="w-14 h-14 rounded-full bg-yozora-purple/20 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-yozora-neon/20 transition-all">
+                                            <i className={`fa-solid ${feature.icon} text-2xl text-yozora-neon`}></i>
                                         </div>
-                                    ))}
-                                </div>
+                                        <h3 className="text-2xl font-bold mb-3">{feature.title}</h3>
+                                        <p className="text-gray-400 leading-relaxed">{feature.desc}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
 
-                                {/* Right: Floating Art Cards */}
-                                <div className="relative h-[600px] hidden md:block">
-                                    {FEATURE_ARTWORKS.map((art, idx) => (
-                                        <div 
-                                            key={idx} 
-                                            className={`absolute rounded-2xl overflow-hidden shadow-2xl border border-white/10 glass-panel animate-float`}
-                                            style={{
-                                                top: `${idx * 15}%`,
-                                                right: `${idx * 15}%`,
-                                                width: '280px',
-                                                height: '380px',
-                                                zIndex: 3 - idx,
-                                                animationDelay: `${idx * 1.5}s`
-                                            }}
-                                        >
+                    {/* Universe Recommendations Spotlights Section */}
+                    <section className="py-32 px-6 relative z-10 bg-yozora-midnight">
+                        <div className="max-w-7xl mx-auto">
+                            <div className="text-center mb-20">
+                                <h2 className="font-display text-4xl md:text-5xl font-bold mb-4 text-glow">Yozora <span className="text-transparent bg-clip-text bg-gradient-to-r from-yozora-neon to-yozora-purple">Universe</span> Spotlights</h2>
+                                <p className="text-gray-400 max-w-2xl mx-auto">Experience the power of precise AI matching. This is just a glimpse.</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                                {universeSpotlights.map((spot, idx) => (
+                                    <div key={idx} className="glass-panel rounded-3xl overflow-hidden group border-white/10 hover:border-yozora-neon/30 hover:shadow-[0_0_40px_rgba(0,243,255,0.1)] transition-all duration-500 hover:-translate-y-4">
+                                        <div className="relative h-96 overflow-hidden">
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10"></div>
-                                            <img src={art.img} alt={art.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                            <div className="absolute bottom-0 left-0 p-6 z-20">
-                                                <p className="text-xs font-bold text-yozora-neon tracking-widest uppercase mb-1">Match 98%</p>
-                                                <h4 className="font-display font-bold text-xl">{art.title}</h4>
+                                            <img src={spot.img} alt={spot.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                            <div className="absolute top-4 left-4 z-20 px-4 py-1.5 rounded-full bg-black/50 border border-white/10 backdrop-blur-sm text-xs font-bold tracking-widest uppercase text-gray-300">
+                                                {spot.type}
+                                            </div>
+                                            <div className="absolute bottom-6 left-6 z-20">
+                                                <p className="text-xs font-bold text-yozora-neon tracking-widest uppercase mb-1">Match {spot.match}%</p>
+                                                <h4 className="font-display font-bold text-3xl group-hover:text-glow group-hover:text-yozora-neon transition-colors">{spot.title}</h4>
                                             </div>
                                         </div>
-                                    ))}
-                                </div>
+                                        <div className="p-8 pb-10">
+                                            <p className="text-gray-400 leading-relaxed mb-8">{spot.desc}</p>
+                                            <button className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded-full border border-yozora-purple/50 text-gray-200 hover:border-yozora-neon hover:text-yozora-neon transition-all duration-300 font-semibold text-sm group-hover:bg-yozora-neon/10">
+                                                Explore this Title <i className="fa-solid fa-arrow-right text-xs group-hover:translate-x-1.5 transition-transform"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </section>
 
                     {/* Coming Soon / Email Section */}
-                    <section id="early-access" className="py-32 px-6 relative z-10">
-                        <div className="max-w-4xl mx-auto glass-panel rounded-3xl p-10 md:p-16 text-center border-t border-yozora-neon/30 relative overflow-hidden">
+                    <section id="early-access" className="py-32 px-6 relative z-10 bg-yozora-dark/90 backdrop-blur-sm border-t border-white/10">
+                        <div className="max-w-4xl mx-auto glass-panel rounded-3xl p-10 md:p-16 text-center border-t border-yozora-neon/30 relative overflow-hidden shadow-[0_0_60px_rgba(0,243,255,0.05)]">
                             {/* Decorative background glow inside card */}
                             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full bg-yozora-purple/10 blur-[100px] -z-10"></div>
                             
@@ -378,13 +390,13 @@
 
                     {/* Footer */}
                     <footer className="py-8 px-6 border-t border-white/10 relative z-10 bg-yozora-dark/80 backdrop-blur-md">
-                        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
                             <div className="flex items-center gap-2">
                                 <h3 className="font-display font-bold text-xl tracking-wider">YOZARA</h3>
                             </div>
                             
                             <p className="text-gray-500 text-sm font-light">
-                                Crafted with <i className="fa-solid fa-bolt text-yozora-neon mx-1"></i> by <span className="text-gray-300 font-medium">Shlok and Team</span>
+                                Crafted with <i className="fa-solid fa-bolt text-yozora-neon mx-1"></i> by <span className="text-gray-300 font-medium">Shlok and Team</span>. Images used for illustrative/fan concepts.
                             </p>
                             
                             <div className="text-gray-600 text-sm">
