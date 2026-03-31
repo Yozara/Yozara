@@ -25,8 +25,8 @@
                         display: ['Orbitron', 'sans-serif'],
                     },
                     colors: {
-                        yozora: {
-                            dark: '#030310', // Darker, almost black for night sky
+                        yozara: {
+                            dark: '#030310', 
                             purple: '#4c1d95',
                             neon: '#00f3ff',
                             pink: '#ec4899',
@@ -65,21 +65,15 @@
     </script>
 
     <style>
-        /* Custom Styles for things Tailwind is too verbose for */
         body {
             background-color: #030310;
             color: white;
             overflow-x: hidden;
-            cursor: none; /* Custom cursor */
+            cursor: none; 
         }
         
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         .glass-panel {
             background: rgba(255, 255, 255, 0.03);
@@ -110,7 +104,6 @@
             background-color: rgba(0, 243, 255, 0.2);
         }
         
-        /* Rain effect particles */
         .rain-drop {
             position: absolute;
             top: -100px;
@@ -127,184 +120,129 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // Image URLs for specific content (Illustrative, fan-art style)
         const GOJO_IMAGE_URL = "https://static0.cbrimages.com/wordpress/wp-content/uploads/2024/11/jjk-s-shibuya-incident.jpg?w=1600&h=900&fit=crop";
         const GED_IMAGE_URL = "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9791191841558.jpg";
         const LIGHT_IMAGE_URL = "https://dosbg3xlm0x1t.cloudfront.net/images/items/9784088736211/1200/9784088736211.jpg";
 
-        // Component: Custom Cursor
         const CustomCursor = () => {
             const [position, setPosition] = useState({ x: 0, y: 0 });
             const [isHovering, setIsHovering] = useState(false);
 
             useEffect(() => {
-                const updatePosition = (e) => {
-                    setPosition({ x: e.clientX, y: e.clientY });
-                };
-
+                const updatePosition = (e) => setPosition({ x: e.clientX, y: e.clientY });
                 const updateHoverState = (e) => {
                     const target = e.target;
-                    if (target.tagName.toLowerCase() === 'button' || 
-                        target.tagName.toLowerCase() === 'a' || 
-                        target.closest('button') || 
-                        target.closest('a') ||
-                        target.tagName.toLowerCase() === 'input') {
-                        setIsHovering(true);
-                    } else {
-                        setIsHovering(false);
-                    }
+                    setIsHovering(!!(target.closest('button') || target.closest('a') || target.tagName === 'INPUT'));
                 };
-
                 window.addEventListener("mousemove", updatePosition);
                 window.addEventListener("mouseover", updateHoverState);
-
                 return () => {
                     window.removeEventListener("mousemove", updatePosition);
                     window.removeEventListener("mouseover", updateHoverState);
                 };
             }, []);
 
-            return (
-                <div 
-                    className={`custom-cursor hidden md:block ${isHovering ? 'hovering' : ''}`}
-                    style={{ left: `${position.x}px`, top: `${position.y}px` }}
-                />
-            );
+            return <div className={`custom-cursor hidden md:block ${isHovering ? 'hovering' : ''}`} style={{ left: `${position.x}px`, top: `${position.y}px` }} />;
         };
 
-        // Component: Rainy Night Sky Background
         const RainyNightSky = () => {
             const rainDrops = Array.from({ length: 50 }, (_, i) => ({
                 id: i,
                 left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 1}s`,
-                animationDuration: `${0.4 + Math.random() * 0.2}s`,
+                delay: `${Math.random() * 1}s`,
+                duration: `${0.4 + Math.random() * 0.2}s`,
             }));
 
             return (
-                <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-yozora-dark">
-                    {/* Deep night sky gradient and star field */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-yozora-dark via-yozora-midnight to-yozora-dark opacity-100 z-10"></div>
+                <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-yozara-dark">
+                    <div className="absolute inset-0 bg-gradient-to-b from-yozara-dark via-yozara-midnight to-yozara-dark opacity-100 z-10"></div>
                     <div className="absolute inset-0 opacity-10 z-10" style={{ backgroundImage: 'radial-gradient(white, rgba(255,255,255,0.2) 2px, transparent 40px)', backgroundSize: '100px 100px' }}></div>
-                    
-                    {/* Rain particles */}
                     <div className="absolute inset-0 z-20">
                         {rainDrops.map((drop) => (
-                            <div 
-                                key={drop.id} 
-                                className="rain-drop" 
-                                style={{ 
-                                    left: drop.left, 
-                                    animationDelay: drop.left,
-                                    animationDuration: drop.animationDuration
-                                }} 
-                            />
+                            <div key={drop.id} className="rain-drop" style={{ left: drop.left, animationDelay: drop.delay, animationDuration: drop.duration }} />
                         ))}
                     </div>
                 </div>
             );
         };
 
-        // Component: App
         const App = () => {
             const [isLoaded, setIsLoaded] = useState(false);
             const [email, setEmail] = useState('');
-            const [status, setStatus] = useState('idle'); // idle, loading, success
+            const [status, setStatus] = useState('idle');
 
-            useEffect(() => {
-                setIsLoaded(true);
-            }, []);
+            useEffect(() => setIsLoaded(true), []);
 
             const handleSubscribe = (e) => {
                 e.preventDefault();
                 if(!email) return;
-                
                 setStatus('loading');
-                // Simulate API call
-                setTimeout(() => {
-                    setStatus('success');
-                    setEmail('');
-                }, 1500);
+                setTimeout(() => { setStatus('success'); setEmail(''); }, 1500);
             };
 
             const universeSpotlights = [
-                { type: "ANIME", title: "Jujutsu Kaisen", match: 98, img: GOJO_IMAGE_URL, desc: "AI predicts a near-perfect match. Master cursed energy alongside the user of the Six Eyes." },
-                { type: "MANHWA", title: "The Greatest Estate Developer", match: 96, img: GED_IMAGE_URL, desc: "An engineer's logic meets a fantasy world. Watch how to build an empire, from scratch." },
-                { type: "MANGA", title: "Death Note", match: 99, img: LIGHT_IMAGE_URL, desc: "The original genius thriller. AI analysis: You'll be hooked on this game of gods and humans." },
+                { type: "ANIME", title: "Jujutsu Kaisen", match: 98, img: GOJO_IMAGE_URL, desc: "AI predicts a near-perfect match. Master cursed energy alongside Gojo Satoru." },
+                { type: "MANHWA", title: "The Greatest Estate Developer", match: 96, img: GED_IMAGE_URL, desc: "An engineer's logic meets a fantasy world. Build an empire from scratch." },
+                { type: "MANGA", title: "Death Note", match: 99, img: LIGHT_IMAGE_URL, desc: "The original genius thriller. A high-stakes game of gods and humans." },
             ];
 
             return (
-                <div className="relative min-h-screen font-sans selection:bg-yozora-neon selection:text-black">
+                <div className="relative min-h-screen font-sans selection:bg-yozara-neon selection:text-black">
                     <CustomCursor />
                     <RainyNightSky />
                     
-                    {/* Glowing Orbs Background (Overlayed on rain for depth) */}
                     <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none z-30">
-                        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-yozora-purple rounded-full mix-blend-screen filter blur-[120px] opacity-40 animate-blob"></div>
-                        <div className="absolute top-[20%] right-[-10%] w-96 h-96 bg-yozora-neon rounded-full mix-blend-screen filter blur-[120px] opacity-30 animate-blob animation-delay-2000"></div>
-                        <div className="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-yozora-pink rounded-full mix-blend-screen filter blur-[120px] opacity-30 animate-blob animation-delay-4000"></div>
+                        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-yozara-purple rounded-full mix-blend-screen filter blur-[120px] opacity-40 animate-blob"></div>
+                        <div className="absolute top-[20%] right-[-10%] w-96 h-96 bg-yozara-neon rounded-full mix-blend-screen filter blur-[120px] opacity-30 animate-blob animation-delay-2000"></div>
+                        <div className="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-yozara-pink rounded-full mix-blend-screen filter blur-[120px] opacity-30 animate-blob animation-delay-4000"></div>
                     </div>
 
-                    {/* Navbar */}
                     <nav className="fixed top-0 w-full z-50 p-6 glass-panel border-b-0">
                         <div className="max-w-7xl mx-auto flex justify-between items-center">
                             <h2 className="font-display font-bold text-2xl tracking-widest text-white">
-                                YOZ<span className="text-yozora-neon">ARA</span>
+                                YOZ<span className="text-yozara-neon">ARA</span>
                             </h2>
-                            <a href="#early-access" className="px-6 py-2 rounded-full border border-yozora-neon text-yozora-neon hover:bg-yozora-neon hover:text-black transition-all duration-300 font-semibold text-sm">
+                            <a href="#early-access" className="px-6 py-2 rounded-full border border-yozara-neon text-yozara-neon hover:bg-yozara-neon hover:text-black transition-all duration-300 font-semibold text-sm">
                                 Join Beta
                             </a>
                         </div>
                     </nav>
 
-                    {/* Hero Section */}
                     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 z-10">
                         <div className="relative z-20 text-center px-4 max-w-4xl mx-auto mt-16">
-                            <div className={`transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-                                <h1 className="font-display text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter mb-6 text-glow">
-                                    YOZARA
-                                </h1>
-                            </div>
-                            
-                            <div className={`transition-all duration-1000 delay-200 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-                                <p className="text-xl md:text-3xl font-light text-gray-300 mb-10 max-w-2xl mx-auto leading-relaxed">
-                                    Your AI-powered anime, manga, and manhwa recommendation universe.
-                                </p>
-                            </div>
-
+                            <h1 className={`font-display text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter mb-6 text-glow transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+                                YOZARA
+                            </h1>
+                            <p className={`text-xl md:text-3xl font-light text-gray-300 mb-10 max-w-2xl mx-auto transition-all duration-1000 delay-200 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+                                Your AI-powered anime, manga, and manhwa recommendation universe.
+                            </p>
                             <div className={`transition-all duration-1000 delay-400 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-                                <a href="#early-access" className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-yozora-purple border border-transparent rounded-full hover:bg-transparent hover:border-yozora-neon hover:text-yozora-neon overflow-hidden">
-                                    <span className="relative z-10 flex items-center gap-2">
-                                        Coming Soon <i className="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                                    </span>
-                                    <div className="absolute inset-0 h-full w-full bg-gradient-to-r from-yozora-neon to-yozora-purple opacity-0 group-hover:opacity-20 transition-opacity blur-md"></div>
+                                <a href="#early-access" className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-yozara-purple border border-transparent rounded-full hover:bg-transparent hover:border-yozara-neon hover:text-yozara-neon overflow-hidden">
+                                    <span className="relative z-10 flex items-center gap-2">Coming Soon <i className="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i></span>
+                                    <div className="absolute inset-0 h-full w-full bg-gradient-to-r from-yozara-neon to-yozara-purple opacity-0 group-hover:opacity-20 transition-opacity blur-md"></div>
                                 </a>
                             </div>
                         </div>
-
-                        {/* Scroll Indicator */}
                         <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
-                            <i className="fa-solid fa-chevron-down text-yozora-neon opacity-70 text-xl"></i>
+                            <i className="fa-solid fa-chevron-down text-yozara-neon opacity-70 text-xl"></i>
                         </div>
                     </section>
 
-                    {/* Features Section */}
-                    <section className="py-32 px-6 relative z-10 bg-yozora-dark/80 backdrop-blur-sm">
+                    <section className="py-32 px-6 relative z-10 bg-yozara-dark/80 backdrop-blur-sm">
                         <div className="max-w-7xl mx-auto">
                             <div className="text-center mb-20">
-                                <h2 className="font-display text-4xl md:text-5xl font-bold mb-4">Discover the <span className="text-transparent bg-clip-text bg-gradient-to-r from-yozora-neon to-yozora-purple">Unknown</span></h2>
+                                <h2 className="font-display text-4xl md:text-5xl font-bold mb-4">Discover the <span className="text-transparent bg-clip-text bg-gradient-to-r from-yozara-neon to-yozara-purple">Unknown</span></h2>
                                 <p className="text-gray-400 max-w-2xl mx-auto">Our neural engines decode your taste to unlock worlds you never imagined.</p>
                             </div>
-
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                                 {[
-                                    { icon: "fa-brain", title: "AI-Powered Recommendations", desc: "Our neural engine analyzes thousands of plot points, art styles, and pacing metrics to find your perfect match." },
-                                    { icon: "fa-layer-group", title: "Cross-Platform Discovery", desc: "Seamlessly jump between Anime, Manga, and Manhwa. AI connects the dots between different worlds." },
-                                    { icon: "fa-user-astronaut", title: "Personalized Universe", desc: "Curate your own library. Track progress and watch your recommendation algorithm evolve with your tastes." }
+                                    { icon: "fa-brain", title: "AI Recommendations", desc: "Our neural engine analyzes thousands of plot points and art styles to find your perfect match." },
+                                    { icon: "fa-layer-group", title: "Cross-Platform", desc: "Seamlessly jump between Anime, Manga, and Manhwa with connected story mapping." },
+                                    { icon: "fa-user-astronaut", title: "Personalized Universe", desc: "Curate your library. Watch your recommendation algorithm evolve with every chapter." }
                                 ].map((feature, idx) => (
-                                    <div key={idx} className="glass-panel p-8 rounded-2xl hover:-translate-y-2 hover:border-yozora-neon/30 hover:shadow-[0_0_20px_rgba(0,243,255,0.1)] transition-all duration-300 group">
-                                        <div className="w-14 h-14 rounded-full bg-yozora-purple/20 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-yozora-neon/20 transition-all">
-                                            <i className={`fa-solid ${feature.icon} text-2xl text-yozora-neon`}></i>
+                                    <div key={idx} className="glass-panel p-8 rounded-2xl hover:-translate-y-2 hover:border-yozara-neon/30 transition-all duration-300 group">
+                                        <div className="w-14 h-14 rounded-full bg-yozara-purple/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-all">
+                                            <i className={`fa-solid ${feature.icon} text-2xl text-yozara-neon`}></i>
                                         </div>
                                         <h3 className="text-2xl font-bold mb-3">{feature.title}</h3>
                                         <p className="text-gray-400 leading-relaxed">{feature.desc}</p>
@@ -314,33 +252,24 @@
                         </div>
                     </section>
 
-                    {/* Universe Recommendations Spotlights Section */}
-                    <section className="py-32 px-6 relative z-10 bg-yozora-midnight">
-                        <div className="max-w-7xl mx-auto">
-                            <div className="text-center mb-20">
-                                <h2 className="font-display text-4xl md:text-5xl font-bold mb-4 text-glow">Yozora <span className="text-transparent bg-clip-text bg-gradient-to-r from-yozora-neon to-yozora-purple">Universe</span> Spotlights</h2>
-                                <p className="text-gray-400 max-w-2xl mx-auto">Experience the power of precise AI matching. This is just a glimpse.</p>
-                            </div>
-
+                    <section className="py-32 px-6 relative z-10 bg-yozara-midnight">
+                        <div className="max-w-7xl mx-auto text-center">
+                            <h2 className="font-display text-4xl md:text-5xl font-bold mb-20 text-glow">Yozara <span className="text-transparent bg-clip-text bg-gradient-to-r from-yozara-neon to-yozara-purple">Universe</span> Spotlights</h2>
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                                 {universeSpotlights.map((spot, idx) => (
-                                    <div key={idx} className="glass-panel rounded-3xl overflow-hidden group border-white/10 hover:border-yozora-neon/30 hover:shadow-[0_0_40px_rgba(0,243,255,0.1)] transition-all duration-500 hover:-translate-y-4">
+                                    <div key={idx} className="glass-panel rounded-3xl overflow-hidden group hover:border-yozara-neon/30 transition-all duration-500 hover:-translate-y-4">
                                         <div className="relative h-96 overflow-hidden">
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10"></div>
                                             <img src={spot.img} alt={spot.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                                            <div className="absolute top-4 left-4 z-20 px-4 py-1.5 rounded-full bg-black/50 border border-white/10 backdrop-blur-sm text-xs font-bold tracking-widest uppercase text-gray-300">
-                                                {spot.type}
-                                            </div>
-                                            <div className="absolute bottom-6 left-6 z-20">
-                                                <p className="text-xs font-bold text-yozora-neon tracking-widest uppercase mb-1">Match {spot.match}%</p>
-                                                <h4 className="font-display font-bold text-3xl group-hover:text-glow group-hover:text-yozora-neon transition-colors">{spot.title}</h4>
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent z-10"></div>
+                                            <div className="absolute top-4 left-4 z-20 px-4 py-1.5 rounded-full bg-black/50 border border-white/10 text-xs font-bold uppercase">{spot.type}</div>
+                                            <div className="absolute bottom-6 left-6 z-20 text-left">
+                                                <p className="text-xs font-bold text-yozara-neon tracking-widest uppercase">Match {spot.match}%</p>
+                                                <h4 className="font-display font-bold text-2xl">{spot.title}</h4>
                                             </div>
                                         </div>
-                                        <div className="p-8 pb-10">
-                                            <p className="text-gray-400 leading-relaxed mb-8">{spot.desc}</p>
-                                            <button className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded-full border border-yozora-purple/50 text-gray-200 hover:border-yozora-neon hover:text-yozora-neon transition-all duration-300 font-semibold text-sm group-hover:bg-yozora-neon/10">
-                                                Explore this Title <i className="fa-solid fa-arrow-right text-xs group-hover:translate-x-1.5 transition-transform"></i>
-                                            </button>
+                                        <div className="p-8 text-left">
+                                            <p className="text-gray-400 mb-8">{spot.desc}</p>
+                                            <button className="w-full py-4 rounded-full border border-yozara-purple/50 hover:border-yozara-neon hover:text-yozara-neon transition-all">Explore Title</button>
                                         </div>
                                     </div>
                                 ))}
@@ -348,60 +277,28 @@
                         </div>
                     </section>
 
-                    {/* Coming Soon / Email Section */}
-                    <section id="early-access" className="py-32 px-6 relative z-10 bg-yozora-dark/90 backdrop-blur-sm border-t border-white/10">
-                        <div className="max-w-4xl mx-auto glass-panel rounded-3xl p-10 md:p-16 text-center border-t border-yozora-neon/30 relative overflow-hidden shadow-[0_0_60px_rgba(0,243,255,0.05)]">
-                            {/* Decorative background glow inside card */}
-                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full bg-yozora-purple/10 blur-[100px] -z-10"></div>
-                            
-                            <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">Enter the <span className="text-yozora-neon">Grid</span></h2>
-                            <p className="text-gray-300 mb-10 text-lg">Secure your early access pass. We are launching the beta exclusively to our waitlist soon.</p>
-                            
+                    <section id="early-access" className="py-32 px-6 relative z-10 border-t border-white/10">
+                        <div className="max-w-4xl mx-auto glass-panel rounded-3xl p-10 md:p-16 text-center relative overflow-hidden">
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-yozara-purple/10 blur-[100px] -z-10"></div>
+                            <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">Enter the <span className="text-yozara-neon">Grid</span></h2>
+                            <p className="text-gray-300 mb-10 text-lg">Secure your early access pass for the Yozara Beta.</p>
                             <form onSubmit={handleSubscribe} className="max-w-md mx-auto relative">
                                 <div className="relative flex items-center">
-                                    <i className="fa-solid fa-envelope absolute left-6 text-gray-400"></i>
-                                    <input 
-                                        type="email" 
-                                        required
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="johndoe@cyber.net" 
-                                        disabled={status !== 'idle'}
-                                        className="w-full bg-black/50 border border-gray-700 rounded-full py-4 pl-14 pr-36 focus:outline-none focus:border-yozora-neon focus:ring-1 focus:ring-yozora-neon transition-colors text-white placeholder-gray-500 disabled:opacity-50"
-                                    />
-                                    <button 
-                                        type="submit" 
-                                        disabled={status !== 'idle'}
-                                        className="absolute right-2 top-2 bottom-2 bg-white text-black font-bold px-6 rounded-full hover:bg-yozora-neon transition-colors disabled:opacity-80 disabled:hover:bg-white flex items-center justify-center min-w-[120px]"
-                                    >
-                                        {status === 'idle' && 'Jack In'}
-                                        {status === 'loading' && <i className="fa-solid fa-circle-notch fa-spin"></i>}
-                                        {status === 'success' && <i className="fa-solid fa-check text-green-600"></i>}
+                                    <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="johndoe@cyber.net" className="w-full bg-black/50 border border-gray-700 rounded-full py-4 pl-6 pr-36 focus:outline-none focus:border-yozara-neon transition-colors text-white" />
+                                    <button type="submit" disabled={status !== 'idle'} className="absolute right-2 top-2 bottom-2 bg-white text-black font-bold px-6 rounded-full hover:bg-yozara-neon transition-colors min-w-[120px]">
+                                        {status === 'idle' ? 'Jack In' : status === 'loading' ? '...' : 'Done'}
                                     </button>
                                 </div>
-                                {status === 'success' && (
-                                    <p className="absolute -bottom-8 left-0 w-full text-center text-yozora-neon text-sm animate-fade-in-up">
-                                        Access granted. Check your terminal (inbox) soon.
-                                    </p>
-                                )}
+                                {status === 'success' && <p className="mt-4 text-yozara-neon text-sm animate-fade-in-up">Access granted. Terminal active.</p>}
                             </form>
                         </div>
                     </section>
 
-                    {/* Footer */}
-                    <footer className="py-8 px-6 border-t border-white/10 relative z-10 bg-yozora-dark/80 backdrop-blur-md">
-                        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
-                            <div className="flex items-center gap-2">
-                                <h3 className="font-display font-bold text-xl tracking-wider">YOZARA</h3>
-                            </div>
-                            
-                            <p className="text-gray-500 text-sm font-light">
-                                Crafted with <i className="fa-solid fa-bolt text-yozora-neon mx-1"></i> by <span className="text-gray-300 font-medium">Shlok and Team</span>. Images used for illustrative/fan concepts.
-                            </p>
-                            
-                            <div className="text-gray-600 text-sm">
-                                &copy; {new Date().getFullYear()} Yozara. All rights reserved.
-                            </div>
+                    <footer className="py-12 px-6 border-t border-white/10 relative z-10 bg-yozara-dark/80 backdrop-blur-md">
+                        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                            <h3 className="font-display font-bold text-xl tracking-wider text-white">YOZARA</h3>
+                            <p className="text-gray-500 text-sm font-light">Crafted with <i className="fa-solid fa-bolt text-yozara-neon mx-1"></i> by <span className="text-gray-300 font-medium">Shlok Deshmukh and Team</span></p>
+                            <div className="text-gray-600 text-sm">&copy; {new Date().getFullYear()} Yozara.</div>
                         </div>
                     </footer>
                 </div>
