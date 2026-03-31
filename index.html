@@ -4,15 +4,34 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>YOZARA | AI Anime Universe</title>
+    
+    <!-- 1. Tailwind for Styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- 2. Babel to convert JSX to JS in the browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- 3. React and Framer Motion Libraries -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/framer-motion@11.0.8/dist/framer-motion.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-      body { background-color: #0f0c29; margin: 0; font-family: 'Inter', sans-serif; }
+      body { background-color: #0f0c29; margin: 0; color: white; overflow-x: hidden; }
       #root { min-height: 100vh; }
     </style>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Note the type="text/babel" - this tells Babel to compile this file -->
+    <script type="text/babel" src="/src/App.js"></script>
+    
+    <script type="text/babel">
+      // Inline initialization to ensure App is loaded
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<YozaraLandingPage />);
+    </script>
   </body>
 </html>
