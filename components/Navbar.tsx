@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -6,10 +7,21 @@ export default function Navbar() {
     <header className="absolute top-0 left-0 right-0 z-50 h-24 bg-gradient-to-b from-brand-blue from-60% to-transparent pointer-events-auto">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between mt-2">
         
-        {/* Left: Logo */}
-        <Link href="/" className="text-2xl font-bold tracking-tighter text-brand-white">
-          Yozara<span className="text-brand-pink">.</span>
-        </Link>
+        import Image from "next/image"; // Add this at the very top of the file
+
+          // Inside the return:
+          <Link href="/" className="flex items-center gap-2">
+            <Image 
+              src="/logo.png" 
+              alt="Yozara Logo" 
+              width={40} 
+              height={40} 
+              className="object-contain"
+            />
+            <span className="text-2xl font-bold text-brand-white hidden md:block">
+              Yozara<span className="text-brand-pink">.</span>
+            </span>
+          </Link>
 
         {/* Center: Links with Animated Dark Pink Underline */}
         <nav className="hidden md:flex gap-8 text-sm font-medium">
