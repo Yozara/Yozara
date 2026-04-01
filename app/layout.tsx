@@ -7,8 +7,11 @@ import Footer from "@/components/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Yozara | The Ultimate Anime Universe",
-  description: "Discover, track, and share your favorite anime and manga.",
+  title: "Yozara",
+  description: "Your gateway to the anime universe.",
+  icons: {
+    icon: "/icon.png", 
+  },
 };
 
 export default function RootLayout({

@@ -20,9 +20,6 @@ export default function Navbar() {
               priority
             />
           </div>
-          <span className="text-2xl font-bold text-brand-white hidden md:block">
-            Yozara<span className="text-brand-pink">.</span>
-          </span>
         </Link>
 
         {/* Center: Links */}
