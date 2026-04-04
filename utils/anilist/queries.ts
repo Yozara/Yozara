@@ -171,6 +171,7 @@ export const TRENDING_MEDIA_QUERY = `
     Page(page: $page, perPage: 20) {
       media(type: $type, sort: [TRENDING_DESC], isAdult: false) {
         id
+        type
         title {
           romaji
           english

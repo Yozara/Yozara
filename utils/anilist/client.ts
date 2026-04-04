@@ -5,7 +5,7 @@ import {
   GENRES_AND_TAGS_QUERY,
 } from "./queries";
 
-const ANILIST_API_URL = "https://graphql.anilist.co";
+const ANILIST_PROXY_URL = "/api/anilist";
 
 // Cache for media details (1 hour TTL)
 const detailsCache = new Map<
@@ -16,7 +16,7 @@ const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
 async function anilistQuery(query: string, variables?: Record<string, any>) {
   try {
-    const response = await fetch(ANILIST_API_URL, {
+    const response = await fetch(ANILIST_PROXY_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -27,11 +27,12 @@ async function anilistQuery(query: string, variables?: Record<string, any>) {
       }),
     });
 
-    if (!response.ok) {
-      throw new Error(`AniList API error: ${response.statusText}`);
-    }
-
     const data = await response.json();
+
+    if (!response.ok) {
+      const proxyError = data?.errors?.[0]?.message || response.statusText;
+      throw new Error(`AniList API error: ${proxyError}`);
+    }
 
     if (data.errors) {
       console.error("AniList GraphQL error:", data.errors);

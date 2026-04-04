@@ -28,9 +28,18 @@ export async function signInAction(
 ): Promise<AuthState> {
   const email = sanitizeValue(formData.get("email"));
   const password = sanitizeValue(formData.get("password"));
+  const confirmPassword = sanitizeValue(formData.get("confirm_password"));
 
   if (!email || !password) {
     return { error: "Enter your email and password to continue." };
+  }
+
+  if (!confirmPassword) {
+    return { error: "Confirm your password to continue." };
+  }
+
+  if (password !== confirmPassword) {
+    return { error: "Password and confirm password do not match." };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -70,9 +79,18 @@ export async function signUpAction(
 ): Promise<AuthState> {
   const email = sanitizeValue(formData.get("email"));
   const password = sanitizeValue(formData.get("password"));
+  const confirmPassword = sanitizeValue(formData.get("confirm_password"));
 
   if (!email || !password) {
     return { error: "Enter your email and password to begin your journey." };
+  }
+
+  if (password.length < 8) {
+    return { error: "Use a password with at least 8 characters." };
+  }
+
+  if (password !== confirmPassword) {
+    return { error: "Passwords do not match." };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -94,6 +112,11 @@ export async function signUpAction(
       redirect(`/login?email=${encodeURIComponent(email)}`);
     }
     return { error: error.message };
+  }
+
+  // Supabase can return no error but empty identities for already-existing users.
+  if (data.user && data.user.identities && data.user.identities.length === 0) {
+    redirect(`/login?email=${encodeURIComponent(email)}`);
   }
 
   if (data.session) {
@@ -145,4 +168,55 @@ export async function completeOnboardingAction(
   return {
     success: "Claimed 500 AniPoints. Your Yozara profile is now live.",
   };
+}
+
+export async function changePasswordAction(
+  _previousState: AuthState,
+  formData: FormData
+): Promise<AuthState> {
+  const currentPassword = sanitizeValue(formData.get("current_password"));
+  const newPassword = sanitizeValue(formData.get("new_password"));
+  const confirmPassword = sanitizeValue(formData.get("confirm_password"));
+
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    return { error: "Fill in all password fields." };
+  }
+
+  if (newPassword.length < 8) {
+    return { error: "New password must be at least 8 characters." };
+  }
+
+  if (newPassword !== confirmPassword) {
+    return { error: "New password and confirmation do not match." };
+  }
+
+  if (currentPassword === newPassword) {
+    return { error: "New password must be different from current password." };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !userData.user?.email) {
+    return { error: "Session expired. Please log in again." };
+  }
+
+  const { error: verifyError } = await supabase.auth.signInWithPassword({
+    email: userData.user.email,
+    password: currentPassword,
+  });
+
+  if (verifyError) {
+    return { error: "Current password is incorrect." };
+  }
+
+  const { error: updateError } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
+
+  if (updateError) {
+    return { error: updateError.message };
+  }
+
+  return { success: "Password updated successfully." };
 }
