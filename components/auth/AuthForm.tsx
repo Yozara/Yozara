@@ -54,8 +54,8 @@ export default function AuthForm({
           </h2>
           <p className="text-sm leading-6 text-white/60">
             {isLogin
-              ? "Resume your recommendations, AI chats, and profile from where you left off."
-              : "Create your Yozara identity, claim your starter AniPoints, and continue into onboarding."}
+              ? "Sign in after verifying your email to resume your recommendations and profile."
+              : "Create your Yozara identity and verify your email before your first login."}
           </p>
         </div>
       </div>

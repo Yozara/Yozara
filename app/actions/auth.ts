@@ -1,6 +1,7 @@
 "use server";
 
 import { createSupabaseServerClient } from "@/utils/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -22,6 +23,17 @@ function sanitizeValue(value: FormDataEntryValue | null) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function createSupabaseAdminClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error("Missing Supabase admin environment variables.");
+  }
+
+  return createClient(supabaseUrl, serviceRoleKey);
+}
+
 export async function signInAction(
   _previousState: AuthState,
   formData: FormData
@@ -37,6 +49,12 @@ export async function signInAction(
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
+    if (error.message?.toLowerCase().includes("email not confirmed")) {
+      return {
+        error:
+          "Your email is not verified yet. Please confirm your email first, then sign in.",
+      };
+    }
     return { error: error.message };
   }
 
@@ -47,19 +65,31 @@ export async function signInAction(
     return { error: "Unable to verify your session. Please try again." };
   }
 
+  if (!user.email_confirmed_at) {
+    await supabase.auth.signOut();
+    return {
+      error: "Please verify your email before logging in.",
+    };
+  }
+
+  // Ensure profile row exists even if DB trigger was not configured.
+  try {
+    const supabaseAdmin = createSupabaseAdminClient();
+    await supabaseAdmin.from("profiles").upsert(
+      {
+        id: user.id,
+      },
+      { onConflict: "id" }
+    );
+  } catch {
+    // Non-fatal here; onboarding can still complete when profile table is healthy.
+  }
+
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("username, anime_class")
     .eq("id", user.id)
     .maybeSingle();
-
-  console.log("Profile lookup on signin:", { 
-    userId: user.id,
-    profileError: profileError?.message,
-    profileExists: !!profile,
-    hasUsername: !!profile?.username,
-    hasAnimeClass: !!profile?.anime_class
-  });
 
   if (profileError) {
     return { error: profileError.message };
@@ -102,14 +132,6 @@ export async function signUpAction(
     },
   });
 
-  console.log("Signup result:", { 
-    email, 
-    error: error?.message, 
-    userId: data.user?.id,
-    session: !!data.session,
-    identities: data.user?.identities?.length
-  });
-
   if (error) {
     // If user already exists, redirect to login with email prefilled
     if (
@@ -126,13 +148,28 @@ export async function signUpAction(
     redirect(`/login?email=${encodeURIComponent(email)}`);
   }
 
+  if (data.user?.id) {
+    try {
+      const supabaseAdmin = createSupabaseAdminClient();
+      await supabaseAdmin.from("profiles").upsert(
+        {
+          id: data.user.id,
+        },
+        { onConflict: "id" }
+      );
+    } catch {
+      // Keep signup successful even if profile bootstrap fails.
+    }
+  }
+
+  // Enforce email verification before onboarding/login flows.
   if (data.session) {
-    redirect("/onboarding");
+    await supabase.auth.signOut();
   }
 
   return {
     success:
-      "Check your email to finish opening the gate. Your Yozara journey begins there.",
+      "Verification email sent. Please confirm your email before logging in.",
   };
 }
 
@@ -155,27 +192,24 @@ export async function completeOnboardingAction(
     return { error: "Your session expired. Please log in again." };
   }
 
-  // Use UPSERT to ensure the profile row is created if it doesn't exist
-  const { error, data } = await supabase
-    .from("profiles")
-    .upsert({
+  if (!user.email_confirmed_at) {
+    await supabase.auth.signOut();
+    return {
+      error: "Please verify your email before completing onboarding.",
+    };
+  }
+
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { error } = await supabaseAdmin.from("profiles").upsert(
+    {
       id: user.id,
       username,
       anime_class: animeClass,
-    })
-    .eq("id", user.id)
-    .select();
-
-  console.log("Onboarding update result:", { error, data, userId: user.id });
+    },
+    { onConflict: "id" }
+  );
 
   if (error) {
-    console.error("Onboarding error details:", {
-      code: error.code,
-      message: error.message,
-      details: (error as any).details,
-      hint: (error as any).hint,
-    });
-    
     if (error.code === "23505") {
       return { error: "That username is already taken. Try another one." };
     }

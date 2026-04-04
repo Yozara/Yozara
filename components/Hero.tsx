@@ -4,17 +4,85 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { getTrendingMedia } from "@/utils/anilist/client";
+
+type TrendingAnime = {
+  id: number;
+  title?: {
+    romaji?: string;
+    english?: string;
+  };
+  coverImage?: {
+    large?: string;
+    extraLarge?: string;
+  };
+  bannerImage?: string;
+  trailer?: {
+    id?: string;
+    site?: string;
+  };
+};
+
+function getTrailerEmbedUrl(trailer?: TrendingAnime["trailer"]) {
+  if (!trailer?.id || !trailer.site) {
+    return null;
+  }
+
+  const site = trailer.site.toLowerCase();
+
+  if (site === "youtube") {
+    return `https://www.youtube.com/embed/${trailer.id}?autoplay=1&mute=1&controls=0&loop=1&playlist=${trailer.id}&modestbranding=1&rel=0`;
+  }
+
+  if (site === "dailymotion") {
+    return `https://www.dailymotion.com/embed/video/${trailer.id}?autoplay=1&mute=1&controls=0&loop=1`;
+  }
+
+  return null;
+}
 
 export default function Hero() {
   const router = useRouter();
   const [email, setEmail] = useState("");
+  const [topTrendingAnime, setTopTrendingAnime] = useState<TrendingAnime | null>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const trimmedEmail = email.trim();
     router.push(trimmedEmail ? `/signup?email=${encodeURIComponent(trimmedEmail)}` : "/signup");
   };
+
+  useEffect(() => {
+    const loadTopTrendingAnime = async () => {
+      try {
+        const page = await getTrendingMedia("ANIME", 1);
+        const topAnime = (page?.media?.[0] as TrendingAnime | undefined) ?? null;
+        setTopTrendingAnime(topAnime);
+      } catch (error) {
+        console.error("Failed to load top trending anime for hero:", error);
+        setTopTrendingAnime(null);
+      }
+    };
+
+    loadTopTrendingAnime();
+  }, []);
+
+  const trailerEmbedUrl = useMemo(
+    () => getTrailerEmbedUrl(topTrendingAnime?.trailer),
+    [topTrendingAnime?.trailer]
+  );
+
+  const heroImage =
+    topTrendingAnime?.bannerImage ||
+    topTrendingAnime?.coverImage?.extraLarge ||
+    topTrendingAnime?.coverImage?.large ||
+    "/hero-image.jpg";
+
+  const heroTitle =
+    topTrendingAnime?.title?.english ||
+    topTrendingAnime?.title?.romaji ||
+    "Top Trending Anime";
 
   return (
     <section className="relative w-full h-[95vh] min-h-[600px] bg-brand-blue flex items-center justify-center overflow-hidden">
@@ -30,15 +98,24 @@ export default function Hero() {
             maskImage: "linear-gradient(105deg, rgba(0,0,0,1) 35%, rgba(0,0,0,0) 48%)"
           }}
         >
-          {/* Increased opacity to 80% and added brightness-110 */}
-          <video 
-            src="/hero-video.mp4" 
-            autoPlay 
-            loop 
-            muted 
-            playsInline
-            className="w-full h-full object-cover opacity-80 brightness-110 mix-blend-screen"
-          />
+          {trailerEmbedUrl ? (
+            <iframe
+              src={trailerEmbedUrl}
+              title={`${heroTitle} trailer`}
+              className="w-full h-full object-cover opacity-80 brightness-110 mix-blend-screen pointer-events-none"
+              allow="autoplay; encrypted-media; picture-in-picture"
+              referrerPolicy="strict-origin-when-cross-origin"
+            />
+          ) : (
+            <video
+              src="/hero-video.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover opacity-80 brightness-110 mix-blend-screen"
+            />
+          )}
         </div>
 
         {/* Right Side: Image */}
@@ -49,10 +126,9 @@ export default function Hero() {
             maskImage: "linear-gradient(105deg, rgba(0,0,0,0) 52%, rgba(0,0,0,1) 65%)"
           }}
         >
-          {/* Added object-top to save the heads, increased opacity, added brightness */}
           <img 
-            src="/hero-image.jpg" 
-            alt="Anime Background" 
+            src={heroImage}
+            alt={heroTitle}
             className="w-full h-full object-cover object-top opacity-80 brightness-110 mix-blend-screen"
           />
         </div>

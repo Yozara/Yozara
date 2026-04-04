@@ -182,6 +182,10 @@ export const TRENDING_MEDIA_QUERY = `
           extraLarge
         }
         bannerImage
+        trailer {
+          id
+          site
+        }
         season
         seasonYear
         genres
