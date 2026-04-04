@@ -3,7 +3,7 @@
 import { useEffect, useActionState } from "react";
 import { useRouter } from "next/navigation";
 import { useFormStatus } from "react-dom";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { completeOnboardingAction, type AuthState } from "@/app/actions/auth";
@@ -43,12 +43,16 @@ export default function OnboardingForm() {
     }
 
     const timeout = window.setTimeout(() => {
-      router.replace("/");
+      router.replace("/profile");
       router.refresh();
     }, 1400);
 
     return () => window.clearTimeout(timeout);
   }, [state.success, router]);
+
+  const handleSkip = () => {
+    router.push("/profile");
+  };
 
   return (
     <div className="space-y-6">
@@ -60,7 +64,7 @@ export default function OnboardingForm() {
         <div className="space-y-2">
           <h2 className="text-3xl font-semibold text-white">Choose your identity</h2>
           <p className="text-sm leading-6 text-white/60">
-            Select a username and anime class to unlock your starter AniPoints and continue to Yozara.
+            Select a username and anime class to unlock your starter 500 AniPoints. Or skip to set it up later.
           </p>
         </div>
       </div>
@@ -115,7 +119,18 @@ export default function OnboardingForm() {
           </div>
         ) : null}
 
-        <SubmitButton />
+        <div className="grid grid-cols-2 gap-3">
+          <Button
+            type="button"
+            onClick={handleSkip}
+            variant="ghost"
+            className="h-12 rounded-xl border border-white/10 text-white/80 hover:bg-white/10"
+          >
+            <X className="mr-2 h-4 w-4" />
+            Skip
+          </Button>
+          <SubmitButton />
+        </div>
       </form>
     </div>
   );
