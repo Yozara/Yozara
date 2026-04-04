@@ -5,7 +5,7 @@ import {
   GENRES_AND_TAGS_QUERY,
 } from "./queries";
 
-const ANILIST_PROXY_URL = "/api/anilist";
+const ANILIST_API_URL = "https://graphql.anilist.co";
 
 // Cache for media details (1 hour TTL)
 const detailsCache = new Map<
@@ -16,15 +16,17 @@ const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
 async function anilistQuery(query: string, variables?: Record<string, any>) {
   try {
-    const response = await fetch(ANILIST_PROXY_URL, {
+    const response = await fetch(ANILIST_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Accept: "application/json",
       },
       body: JSON.stringify({
         query,
         variables,
       }),
+      cache: "no-store",
     });
 
     const data = await response.json();
