@@ -27,8 +27,8 @@ export default function Navbar() {
           <Link href="/anime" className="relative text-brand-white/80 hover:text-brand-white transition-colors duration-300 py-1 after:absolute after:bottom-0 after:left-1/2 after:h-[2px] after:w-0 after:-translate-x-1/2 after:bg-brand-pink hover:after:w-full after:transition-all after:duration-300">
             Anime
           </Link>
-          <Link href="/comics" className="relative text-brand-white/80 hover:text-brand-white transition-colors duration-300 py-1 after:absolute after:bottom-0 after:left-1/2 after:h-[2px] after:w-0 after:-translate-x-1/2 after:bg-brand-pink hover:after:w-full after:transition-all after:duration-300">
-            Comics
+          <Link href="/manga" className="relative text-brand-white/80 hover:text-brand-white transition-colors duration-300 py-1 after:absolute after:bottom-0 after:left-1/2 after:h-[2px] after:w-0 after:-translate-x-1/2 after:bg-brand-pink hover:after:w-full after:transition-all after:duration-300">
+            Manga
           </Link>
         </nav>
 
