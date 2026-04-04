@@ -29,9 +29,19 @@ async function anilistQuery(query: string, variables?: Record<string, any>) {
       cache: "no-store",
     });
 
-    const data = await response.json();
+    const data = await response.json().catch((parseError) => {
+      console.error("AniList response parse failed:", parseError);
+      return null;
+    });
 
     if (!response.ok) {
+      console.error("AniList Error Details:", {
+        status: response.status,
+        statusText: response.statusText,
+        variables,
+        responseData: data,
+      });
+
       const proxyError = data?.errors?.[0]?.message || response.statusText;
       throw new Error(`AniList API error: ${proxyError}`);
     }
@@ -77,16 +87,22 @@ export async function searchMedia(
 }
 
 export async function getMediaDetails(id: number) {
+  const mediaId = Number(id);
+
+  if (!Number.isFinite(mediaId)) {
+    throw new Error(`Invalid AniList media id: ${id}`);
+  }
+
   // Check cache first
-  const cached = detailsCache.get(id);
+  const cached = detailsCache.get(mediaId);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
     return cached.data;
   }
 
-  const data = await anilistQuery(MEDIA_DETAILS_QUERY, { id });
+  const data = await anilistQuery(MEDIA_DETAILS_QUERY, { id: mediaId });
 
   // Cache the result
-  detailsCache.set(id, { data: data.Media, timestamp: Date.now() });
+  detailsCache.set(mediaId, { data: data.Media, timestamp: Date.now() });
 
   return data.Media;
 }
