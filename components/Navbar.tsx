@@ -50,7 +50,7 @@ export default function Navbar() {
         
         {/* Left: Bigger Logo and Brand Name */}
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="relative w-16 h-16 sm:w-20 sm:h-20"> 
+          <div className="relative w-20 h-20 sm:w-24 sm:h-24"> 
             <Image 
               src="/logo.png" 
               alt="Yozara Logo" 

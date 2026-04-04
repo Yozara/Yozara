@@ -50,9 +50,9 @@ export default function Footer() {
               <Image
                 src="/logo.png"
                 alt="Yozara"
-                width={180}
-                height={60}
-                className="h-14 w-auto object-contain"
+                width={240}
+                height={80}
+                className="h-20 w-auto object-contain"
                 priority
               />
             </Link>
@@ -144,9 +144,9 @@ export default function Footer() {
               <Image
                 src="/logo.png"
                 alt="Yozara"
-                width={180}
-                height={60}
-                className="h-14 w-auto object-contain"
+                width={240}
+                height={80}
+                className="h-20 w-auto object-contain"
                 priority
               />
             </Link>

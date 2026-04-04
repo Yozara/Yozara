@@ -53,6 +53,14 @@ export async function signInAction(
     .eq("id", user.id)
     .maybeSingle();
 
+  console.log("Profile lookup on signin:", { 
+    userId: user.id,
+    profileError: profileError?.message,
+    profileExists: !!profile,
+    hasUsername: !!profile?.username,
+    hasAnimeClass: !!profile?.anime_class
+  });
+
   if (profileError) {
     return { error: profileError.message };
   }
@@ -92,6 +100,14 @@ export async function signUpAction(
     options: {
       emailRedirectTo: `${redirectBase}/auth/callback?next=/onboarding`,
     },
+  });
+
+  console.log("Signup result:", { 
+    email, 
+    error: error?.message, 
+    userId: data.user?.id,
+    session: !!data.session,
+    identities: data.user?.identities?.length
   });
 
   if (error) {
@@ -139,21 +155,32 @@ export async function completeOnboardingAction(
     return { error: "Your session expired. Please log in again." };
   }
 
-  // Use UPDATE instead of UPSERT since the profile row is auto-created by trigger
-  const { error } = await supabase
+  // Use UPSERT to ensure the profile row is created if it doesn't exist
+  const { error, data } = await supabase
     .from("profiles")
-    .update({
+    .upsert({
+      id: user.id,
       username,
       anime_class: animeClass,
     })
-    .eq("id", user.id);
+    .eq("id", user.id)
+    .select();
+
+  console.log("Onboarding update result:", { error, data, userId: user.id });
 
   if (error) {
+    console.error("Onboarding error details:", {
+      code: error.code,
+      message: error.message,
+      details: (error as any).details,
+      hint: (error as any).hint,
+    });
+    
     if (error.code === "23505") {
       return { error: "That username is already taken. Try another one." };
     }
 
-    return { error: error.message };
+    return { error: `Failed to save profile: ${error.message}` };
   }
 
   return {

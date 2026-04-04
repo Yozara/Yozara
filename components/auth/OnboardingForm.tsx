@@ -53,6 +53,7 @@ export default function OnboardingForm() {
 
     const timeout = window.setTimeout(() => {
       router.push("/profile");
+      router.refresh();
     }, 800);
 
     return () => window.clearTimeout(timeout);
