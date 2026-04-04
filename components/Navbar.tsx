@@ -41,7 +41,7 @@ export default function Navbar() {
           </Link>
           <Link href="/signup">
             <Button className="bg-brand-white text-brand-blue hover:bg-brand-lightpink hover:text-brand-blue transition-colors shadow-[0_0_15px_rgba(255,206,227,0.2)] hover:shadow-[0_0_25px_rgba(255,206,227,0.5)]">
-              Sign In
+              Begin Journey
             </Button>
           </Link>
         </div>

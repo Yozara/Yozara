@@ -3,7 +3,7 @@ import AuthForm from "@/components/auth/AuthForm";
 import AuthShell from "@/components/auth/AuthShell";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 
-export default async function LoginPage() {
+export default async function SignupPage() {
   const supabase = await createSupabaseServerClient();
   const { data: userData } = await supabase.auth.getUser();
 
@@ -23,11 +23,11 @@ export default async function LoginPage() {
 
   return (
     <AuthShell
-      title="Return to the archive"
-      subtitle="Sign in to continue your watchlist, unlock AI recommendations, and resume the cinematic journey through Yozara."
-      accentLabel="Yozara Access Gate"
+      title="Begin your journey"
+      subtitle="Create your Yozara account, claim your starter AniPoints, and set your anime identity before stepping into the recommendation engine."
+      accentLabel="New user initiation"
     >
-      <AuthForm mode="login" />
+      <AuthForm mode="signup" />
     </AuthShell>
   );
 }
