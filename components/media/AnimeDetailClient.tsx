@@ -57,9 +57,9 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
     );
   }
 
-  const title = anime.title?.english || anime.title?.romaji;
+  const title = anime.title?.english || anime.title?.romaji || "Untitled";
   const bannerImage = anime.bannerImage;
-  const coverImage = anime.coverImage?.extraLarge || anime.coverImage?.large;
+  const coverImage = anime.coverImage?.extraLarge || anime.coverImage?.large || "/hero-image.jpg";
   const formatDate = (date: any) => {
     if (!date) return null;
     return new Date(date.year, date.month - 1, date.day).toLocaleDateString(
@@ -73,13 +73,7 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
       {/* Dynamic Background with Banner */}
       {bannerImage && (
         <div className="fixed inset-0 h-96 -z-10 overflow-hidden">
-          <Image
-            src={bannerImage}
-            alt={title}
-            fill
-            className="object-cover"
-            priority
-          />
+          <Image src={bannerImage} alt={title} fill className="object-cover" priority />
           {/* Gradient Overlays */}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0B0F19]" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19] via-transparent to-[#0B0F19]" />
@@ -303,7 +297,7 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
                   >
                     <div className="relative h-40 rounded-lg overflow-hidden mb-2 border border-white/10 group-hover:border-brand-pink/50 transition-colors">
                       <Image
-                        src={edge.node.image?.large}
+                        src={edge.node.image?.large || "/hero-image.jpg"}
                         alt={edge.node.name?.full}
                         fill
                         className="object-cover group-hover:scale-110 transition-transform duration-300"
@@ -340,7 +334,7 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
                     >
                       <div className="relative h-32 rounded-lg overflow-hidden mb-2 border border-white/10 group-hover:border-brand-pink/50 transition-colors">
                         <Image
-                          src={edge.node.coverImage?.large}
+                          src={edge.node.coverImage?.large || "/hero-image.jpg"}
                           alt={edge.node.title?.romaji}
                           fill
                           className="object-cover group-hover:scale-110 transition-transform duration-300"
@@ -381,9 +375,7 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
                     >
                       <div className="relative h-32 rounded-lg overflow-hidden mb-2 border border-white/10 group-hover:border-brand-pink/50 transition-colors">
                         <Image
-                          src={
-                            rec.mediaRecommendation?.coverImage?.large
-                          }
+                          src={rec.mediaRecommendation?.coverImage?.large || "/hero-image.jpg"}
                           alt={
                             rec.mediaRecommendation?.title?.romaji
                           }

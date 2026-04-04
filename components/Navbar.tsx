@@ -4,29 +4,45 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { ChevronDown, LogOut, Settings, LayoutDashboard } from "lucide-react";
-import { signOutAction } from "@/app/actions/signout";
 
 export default function Navbar() {
+    const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [menuOpen, setMenuOpen] = useState(false);
 
     useEffect(() => {
+      const supabase = createClient();
+
       const checkAuth = async () => {
-        const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
         setUser(user ?? null);
         setLoading(false);
       };
 
       checkAuth();
+
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user ?? null);
+        setLoading(false);
+      });
+
+      return () => subscription.unsubscribe();
     }, []);
 
     const handleSignOut = async () => {
-      await signOutAction();
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      setUser(null);
+      setMenuOpen(false);
+      router.push("/");
+      router.refresh();
     };
   return (
     <header className="absolute top-0 left-0 right-0 z-50 h-24 bg-gradient-to-b from-brand-blue from-60% to-transparent pointer-events-auto">
@@ -61,7 +77,7 @@ export default function Navbar() {
             <div className="relative">
               <button onClick={() => setMenuOpen(!menuOpen)} className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors">
                 <div className="relative w-8 h-8 rounded-full overflow-hidden bg-white/10">
-                  <Image src="/favicon.ico" alt="Profile" fill className="object-cover" />
+                  <Image src="/icon.png" alt="Profile" fill className="object-cover" />
                 </div>
                 <ChevronDown size={16} className="text-brand-white/60" />
               </button>

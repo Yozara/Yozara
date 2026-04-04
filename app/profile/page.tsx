@@ -80,9 +80,9 @@ export default async function ProfilePage() {
             <div className="space-y-4 rounded-2xl border border-red-500/15 bg-red-500/5 p-5 backdrop-blur-md">
               <div>
                 <p className="text-xs uppercase tracking-[0.3em] text-red-200/70">Danger Zone</p>
-                <h2 className="mt-2 text-xl font-semibold text-white">Sever connection to Yozara</h2>
+                <h2 className="mt-2 text-xl font-semibold text-white">Account Management</h2>
                 <p className="mt-2 text-sm leading-6 text-white/60">
-                  Permanently delete your account, profile, and associated session from the platform.
+                  Sensitive account actions are hidden by default. Click delete to reveal the final confirmation step.
                 </p>
               </div>
 

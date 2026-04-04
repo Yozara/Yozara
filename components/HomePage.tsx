@@ -17,14 +17,24 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const supabase = createClient();
+
     const checkAuth = async () => {
-      const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user ?? null);
       setLoading(false);
     };
 
     checkAuth();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   if (loading) {

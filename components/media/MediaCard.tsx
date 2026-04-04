@@ -29,6 +29,7 @@ export function MediaCard({
   genres,
 }: MediaCardProps) {
   const href = type === "ANIME" ? `/anime/${id}` : `/manga/${id}`;
+  const safeCoverImage = coverImage || "/hero-image.jpg";
 
   return (
     <Link href={href}>
@@ -42,7 +43,7 @@ export function MediaCard({
           {/* Image */}
           <div className="relative h-64 w-full overflow-hidden bg-gradient-to-b from-white/10 to-transparent">
             <Image
-              src={coverImage}
+              src={safeCoverImage}
               alt={title}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-110"
