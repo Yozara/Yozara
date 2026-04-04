@@ -1,6 +1,7 @@
 "use server";
 
 import { createSupabaseServerClient } from "@/utils/supabase/server";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export type AuthState = {
@@ -8,8 +9,13 @@ export type AuthState = {
   success?: string;
 };
 
-function getRedirectBase() {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+async function getRedirectBase() {
+  const requestHeaders = await headers();
+  return (
+    requestHeaders.get("origin") ??
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    "http://localhost:3000"
+  );
 }
 
 function sanitizeValue(value: FormDataEntryValue | null) {
@@ -70,11 +76,12 @@ export async function signUpAction(
   }
 
   const supabase = await createSupabaseServerClient();
+  const redirectBase = await getRedirectBase();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${getRedirectBase()}/auth/callback?next=/onboarding`,
+      emailRedirectTo: `${redirectBase}/auth/callback?next=/onboarding`,
     },
   });
 
