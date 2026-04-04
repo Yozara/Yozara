@@ -1,10 +1,21 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useState } from "react";
 
 export default function Hero() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const trimmedEmail = email.trim();
+    router.push(trimmedEmail ? `/signup?email=${encodeURIComponent(trimmedEmail)}` : "/signup");
+  };
+
   return (
     <section className="relative w-full h-[95vh] min-h-[600px] bg-brand-blue flex items-center justify-center overflow-hidden">
       
@@ -68,10 +79,12 @@ export default function Hero() {
             Track what you watch, discover curated recommendations, and connect with millions of fans across the globe.
           </p>
 
-          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto w-full" onSubmit={(e) => e.preventDefault()}>
+          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto w-full" onSubmit={handleSubmit}>
             <Input 
               type="email" 
               placeholder="Enter your email" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="h-12 bg-brand-blue/80 border-white/20 text-brand-white placeholder:text-brand-white/50 backdrop-blur-md focus-visible:ring-brand-pink"
             />
             <Button type="submit" size="lg" className="h-12 bg-brand-white text-brand-blue hover:bg-brand-lightpink font-semibold px-8 shadow-[0_0_20px_rgba(255,133,187,0.3)] hover:shadow-[0_0_30px_rgba(255,133,187,0.5)] transition-all">

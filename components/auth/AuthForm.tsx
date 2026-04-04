@@ -27,7 +27,13 @@ function SubmitButton({ label }: { label: string }) {
   );
 }
 
-export default function AuthForm({ mode }: { mode: AuthMode }) {
+export default function AuthForm({
+  mode,
+  initialEmail = "",
+}: {
+  mode: AuthMode;
+  initialEmail?: string;
+}) {
   const [state, formAction] = useActionState(
     mode === "login" ? signInAction : signUpAction,
     initialState
@@ -66,6 +72,7 @@ export default function AuthForm({ mode }: { mode: AuthMode }) {
               name="email"
               type="email"
               autoComplete="email"
+              defaultValue={initialEmail}
               placeholder="hunter@yozara.world"
               required
               className="h-12 rounded-xl border-white/10 bg-white/5 pl-10 text-white placeholder:text-white/35 backdrop-blur-md focus-visible:border-brand-pink focus-visible:ring-brand-pink/30"

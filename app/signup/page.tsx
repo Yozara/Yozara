@@ -3,7 +3,16 @@ import AuthForm from "@/components/auth/AuthForm";
 import AuthShell from "@/components/auth/AuthShell";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 
-export default async function SignupPage() {
+function getInitialEmail(searchParams?: { email?: string | string[] }) {
+  const value = searchParams?.email;
+  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
+}
+
+export default async function SignupPage({
+  searchParams,
+}: {
+  searchParams?: { email?: string | string[] };
+}) {
   const supabase = await createSupabaseServerClient();
   const { data: userData } = await supabase.auth.getUser();
 
@@ -27,7 +36,7 @@ export default async function SignupPage() {
       subtitle="Create your Yozara account, claim your starter AniPoints, and set your anime identity before stepping into the recommendation engine."
       accentLabel="New user initiation"
     >
-      <AuthForm mode="signup" />
+      <AuthForm mode="signup" initialEmail={getInitialEmail(searchParams)} />
     </AuthShell>
   );
 }

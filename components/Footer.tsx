@@ -1,20 +1,34 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Disc as Discord } from "lucide-react"; // Keeping Disc as it rarely causes export issues
 
 export default function Footer() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const trimmedEmail = email.trim();
+    router.push(trimmedEmail ? `/signup?email=${encodeURIComponent(trimmedEmail)}` : "/signup");
+  };
+
   return (
     <footer className="mt-auto border-t border-white/10 bg-zinc-950 pt-20 pb-10">
       <div className="container mx-auto px-4">
         {/* Bottom CTA */}
         <div className="flex flex-col items-center text-center mb-24">
           <h2 className="text-4xl font-bold text-white mb-6">Ready to start tracking?</h2>
-          <form className="flex flex-col sm:flex-row gap-3 w-full max-w-md" onSubmit={(e) => e.preventDefault()}>
+          <form className="flex flex-col sm:flex-row gap-3 w-full max-w-md" onSubmit={handleSubmit}>
             <Input 
               type="email" 
               placeholder="Enter your email" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="h-12 bg-zinc-900 border-white/10 text-white placeholder:text-zinc-500 focus-visible:ring-pink-500"
             />
             <Button type="submit" size="lg" className="h-12 bg-white text-zinc-950 hover:bg-zinc-200 font-semibold px-8">
@@ -26,8 +40,15 @@ export default function Footer() {
         {/* Footer Navigation */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16 border-t border-white/10 pt-16">
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="text-2xl font-bold tracking-tighter text-white inline-block mb-4">
-              Yozara<span className="text-pink-500">.</span>
+            <Link href="/" className="inline-flex items-center justify-start mb-4">
+              <Image
+                src="/logo.png"
+                alt="Yozara"
+                width={180}
+                height={60}
+                className="h-14 w-auto object-contain"
+                priority
+              />
             </Link>
             <p className="text-zinc-500 text-sm">
               The modern platform for anime and manga enthusiasts.
