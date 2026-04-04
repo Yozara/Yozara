@@ -86,6 +86,13 @@ export async function signUpAction(
   });
 
   if (error) {
+    // If user already exists, redirect to login with email prefilled
+    if (
+      error.code === "user_already_exists" ||
+      error.message?.includes("already registered")
+    ) {
+      redirect(`/login?email=${encodeURIComponent(email)}`);
+    }
     return { error: error.message };
   }
 
@@ -118,16 +125,14 @@ export async function completeOnboardingAction(
     return { error: "Your session expired. Please log in again." };
   }
 
+  // Use UPDATE instead of UPSERT since the profile row is auto-created by trigger
   const { error } = await supabase
     .from("profiles")
-    .upsert(
-      {
-        id: user.id,
-        username,
-        anime_class: animeClass,
-      },
-      { onConflict: "id" }
-    );
+    .update({
+      username,
+      anime_class: animeClass,
+    })
+    .eq("id", user.id);
 
   if (error) {
     if (error.code === "23505") {
