@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { ArrowRight, Loader2, Lock, Mail, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { signInAction, signUpAction, type AuthState } from "@/app/actions/auth";
+import { createClient } from "@/utils/supabase/client";
 
 type AuthMode = "login" | "signup";
 
@@ -30,16 +31,47 @@ function SubmitButton({ label }: { label: string }) {
 export default function AuthForm({
   mode,
   initialEmail = "",
+  initialMessage = "",
 }: {
   mode: AuthMode;
   initialEmail?: string;
+  initialMessage?: string;
 }) {
   const [state, formAction] = useActionState(
     mode === "login" ? signInAction : signUpAction,
     initialState
   );
+  const [oauthError, setOauthError] = useState("");
+  const [oauthPending, setOauthPending] = useState(false);
 
   const isLogin = mode === "login";
+
+  const handleGoogleAuth = async () => {
+    try {
+      setOauthError("");
+      setOauthPending(true);
+      const supabase = createClient();
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?next=/profile`,
+          queryParams: {
+            access_type: "offline",
+            prompt: "select_account",
+          },
+        },
+      });
+
+      if (error) {
+        setOauthError(error.message);
+      }
+    } catch {
+      setOauthError("Google sign-in failed. Please try again.");
+    } finally {
+      setOauthPending(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -59,6 +91,37 @@ export default function AuthForm({
           </p>
         </div>
       </div>
+
+      <div className="space-y-3">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleGoogleAuth}
+          disabled={oauthPending}
+          className="h-12 w-full rounded-xl border-white/15 bg-white/5 text-white hover:bg-white/10"
+        >
+          {oauthPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+          <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M21.35 11.1H12v2.98h5.34c-.23 1.51-1.9 4.45-5.34 4.45-3.21 0-5.83-2.66-5.83-5.93S8.79 6.67 12 6.67c1.83 0 3.05.78 3.75 1.45l2.56-2.48C16.68 4.13 14.55 3.2 12 3.2 7.03 3.2 3 7.27 3 12.3s4.03 9.1 9 9.1c5.2 0 8.65-3.65 8.65-8.8 0-.59-.07-1.04-.15-1.5Z"
+            />
+          </svg>
+          {isLogin ? "Continue with Google" : "Sign up with Google"}
+        </Button>
+
+        {oauthError ? (
+          <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+            {oauthError}
+          </div>
+        ) : null}
+      </div>
+
+      {initialMessage ? (
+        <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">
+          {initialMessage}
+        </div>
+      ) : null}
 
       <form action={formAction} className="space-y-4">
         <div className="space-y-2">
@@ -132,6 +195,17 @@ export default function AuthForm({
 
         <SubmitButton label={isLogin ? "Enter Yozara" : "Begin Your Journey"} />
       </form>
+
+      {isLogin ? (
+        <div className="flex justify-end">
+          <Link
+            href="/forgot-password"
+            className="text-sm font-medium text-brand-pink transition-colors hover:text-brand-lightpink"
+          >
+            Forgot password?
+          </Link>
+        </div>
+      ) : null}
 
       <div className="flex items-center justify-between text-sm text-white/55">
         <span>{isLogin ? "New to Yozara?" : "Already have a portal?"}</span>

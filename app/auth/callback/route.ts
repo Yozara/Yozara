@@ -1,11 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
-  const nextPath = requestUrl.searchParams.get("next") ?? "/profile";
+  const requestedNext = requestUrl.searchParams.get("next") ?? "/profile";
+  const nextPath = requestedNext.startsWith("/") ? requestedNext : "/profile";
 
   if (!code) {
     return NextResponse.redirect(new URL("/login", request.url));
@@ -33,6 +35,25 @@ export async function GET(request: NextRequest) {
 
   if (error) {
     return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (supabaseUrl && serviceRoleKey) {
+      const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+      await supabaseAdmin.from("profiles").upsert(
+        {
+          id: user.id,
+        },
+        { onConflict: "id" }
+      );
+    }
   }
 
   return NextResponse.redirect(new URL(nextPath, request.url));

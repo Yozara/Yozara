@@ -78,6 +78,7 @@ export default function Hero() {
     topTrendingAnime?.coverImage?.extraLarge ||
     topTrendingAnime?.coverImage?.large ||
     "/hero-image.jpg";
+  const hasBannerImage = Boolean(topTrendingAnime?.bannerImage);
 
   const heroTitle =
     topTrendingAnime?.title?.english ||
@@ -129,7 +130,11 @@ export default function Hero() {
           <img 
             src={heroImage}
             alt={heroTitle}
-            className="w-full h-full object-cover object-top opacity-80 brightness-110 mix-blend-screen"
+            className={
+              hasBannerImage
+                ? "w-full h-full object-cover object-center opacity-80 brightness-110 mix-blend-screen"
+                : "w-full h-full object-contain object-center opacity-90 brightness-105 mix-blend-screen scale-[0.92]"
+            }
           />
         </div>
 
