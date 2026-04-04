@@ -148,9 +148,6 @@ export const MEDIA_DETAILS_QUERY = `
           }
         }
       }
-      scoring {
-        totalCount
-      }
       externalLinks {
         site
         url
