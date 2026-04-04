@@ -28,18 +28,9 @@ export async function signInAction(
 ): Promise<AuthState> {
   const email = sanitizeValue(formData.get("email"));
   const password = sanitizeValue(formData.get("password"));
-  const confirmPassword = sanitizeValue(formData.get("confirm_password"));
 
   if (!email || !password) {
     return { error: "Enter your email and password to continue." };
-  }
-
-  if (!confirmPassword) {
-    return { error: "Confirm your password to continue." };
-  }
-
-  if (password !== confirmPassword) {
-    return { error: "Password and confirm password do not match." };
   }
 
   const supabase = await createSupabaseServerClient();

@@ -98,23 +98,25 @@ export default function AuthForm({
           </div>
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="confirm_password" className="text-sm font-medium text-white/80">
-            Confirm password
-          </label>
-          <div className="relative">
-            <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-pink/80" />
-            <Input
-              id="confirm_password"
-              name="confirm_password"
-              type="password"
-              autoComplete={isLogin ? "current-password" : "new-password"}
-              placeholder="••••••••"
-              required
-              className="h-12 rounded-xl border-white/10 bg-white/5 pl-10 text-white placeholder:text-white/35 backdrop-blur-md focus-visible:border-brand-pink focus-visible:ring-brand-pink/30"
-            />
+        {!isLogin && (
+          <div className="space-y-2">
+            <label htmlFor="confirm_password" className="text-sm font-medium text-white/80">
+              Confirm password
+            </label>
+            <div className="relative">
+              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-pink/80" />
+              <Input
+                id="confirm_password"
+                name="confirm_password"
+                type="password"
+                autoComplete={isLogin ? "current-password" : "new-password"}
+                placeholder="••••••••"
+                required
+                className="h-12 rounded-xl border-white/10 bg-white/5 pl-10 text-white placeholder:text-white/35 backdrop-blur-md focus-visible:border-brand-pink focus-visible:ring-brand-pink/30"
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         {state.error ? (
           <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">

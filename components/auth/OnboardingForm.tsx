@@ -27,8 +27,17 @@ function SubmitButton() {
       className="h-12 w-full rounded-xl bg-brand-pink text-[#0B0F19] shadow-[0_0_20px_rgba(255,133,187,0.25)] transition-all hover:bg-brand-lightpink hover:shadow-[0_0_30px_rgba(255,133,187,0.38)]"
       disabled={pending}
     >
-      {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-      Claim 500 AniPoints
+      {pending ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Claiming...
+        </>
+      ) : (
+        <>
+          <Sparkles className="mr-2 h-4 w-4" />
+          Claim 500 AniPoints
+        </>
+      )}
     </Button>
   );
 }
@@ -43,9 +52,8 @@ export default function OnboardingForm() {
     }
 
     const timeout = window.setTimeout(() => {
-      router.replace("/profile");
-      router.refresh();
-    }, 1400);
+      router.push("/profile");
+    }, 800);
 
     return () => window.clearTimeout(timeout);
   }, [state.success, router]);
