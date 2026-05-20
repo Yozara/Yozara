@@ -24,12 +24,21 @@ export default async function MangaDetailPage({
   const mangaId = parseInt(id, 10);
 
   if (isNaN(mangaId)) {
-    return (
-      <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center">
-        <p className="text-white/60">Invalid manga ID</p>
-      </div>
-    );
-  }
+  return (
+    <div
+      className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat"
+      style={{
+        backgroundImage:
+          "url('https://wallpaperaccess.com/full/14374140.jpg')",
+      }}
+    >
+      <div className="absolute inset-0 bg-black/50"></div>
+      <p className="relative text-white/80 text-lg font-medium">
+        Invalid manga ID
+      </p>
+    </div>
+  );
+}
 
   return <MangaDetailClient id={mangaId} />;
 }
