@@ -69,8 +69,14 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F19]">
-      {/* Dynamic Background with Banner */}
+    return (
+  <div
+    className="min-h-screen bg-cover bg-center bg-fixed"
+    style={{
+      backgroundImage:
+        "linear-gradient(rgba(0,0,0,.85), rgba(0,0,0,.92)), url('/bg1.jpg')",
+    }}
+  >
       {bannerImage && (
         <div className="fixed inset-0 h-96 -z-10 overflow-hidden">
           <Image src={bannerImage} alt={title} fill className="object-cover" priority />
