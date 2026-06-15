@@ -81,7 +81,6 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
           {/* Gradient Overlays */}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0B0F19]" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19] via-transparent to-[#0B0F19]" />
-          <div className="absolute inset-0 backdrop-blur-sm" />
         </div>
       )}
 
