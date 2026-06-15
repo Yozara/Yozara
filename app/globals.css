@@ -17,7 +17,7 @@
 
 @layer base {
   body {
-    background-image: url('/bg1.jpg');
+    background-image: url('/bg2.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
