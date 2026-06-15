@@ -116,12 +116,12 @@ export function MangaSearchClient() {
             transition={{ duration: 0.5 }}
             className="text-center mb-8"
           >
-            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-2">
-              Discover Manga
-            </h1>
-            <p className="text-white/60">
-              Explore thousands of manga series and find your next favorite
-            </p>
+            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-2">
+  Discover Manga
+</h1>
+<p className="text-gray-700">
+  Explore thousands of manga series and find your next favorite
+</p>
           </motion.div>
 
           {/* Search Bar */}
