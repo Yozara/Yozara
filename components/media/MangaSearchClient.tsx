@@ -104,7 +104,7 @@ export function MangaSearchClient() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" style={{ backgroundImage: "url('/bg2.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed", backgroundBlendMode: "overlay", backgroundColor: "rgba(0,0,0,0.7)" }}>
       {/* Hero Section with Background */}
       <div className="relative pt-20 pb-12 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-brand-pink/10 via-transparent to-transparent pointer-events-none" />
