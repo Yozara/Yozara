@@ -216,7 +216,10 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
     <Download size={18} />
     Download
   </motion.a>
-</div>       
+</div>   
+                </motion.div>
+            </div>
+          </motion.div>
 
           {/* Synopsis */}
           {manga.description && (
