@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getMediaDetails } from "@/utils/anilist/client";
 import { motion } from "framer-motion";
-import { Star, Calendar, ExternalLink, Loader } from "lucide-react";
+import { Star, Calendar, ExternalLink, Loader, BookOpen, Download } from "lucide-react";
 
 interface MangaDetailClientProps {
   id: number;
@@ -179,7 +179,6 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
                 </div>
 
                 {/* Action Buttons */}
-                {/* Action Buttons */}
 <div className="flex flex-wrap gap-3">
   {manga.siteUrl && (
     <motion.a
@@ -217,7 +216,7 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
     <Download size={18} />
     Download
   </motion.a>
-</div>
+</div>       
 
           {/* Synopsis */}
           {manga.description && (
