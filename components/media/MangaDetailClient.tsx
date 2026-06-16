@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getMediaDetails } from "@/utils/anilist/client";
 import { motion } from "framer-motion";
-import { Star, Calendar, ExternalLink, Loader, BookOpen, Download } from "lucide-react";
+import { Star, Calendar, ExternalLink, Loader, BookOpen } from "lucide-react";
 
 interface MangaDetailClientProps {
   id: number;
@@ -15,7 +15,6 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
   const [manga, setManga] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [weebUrl, setWeebUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -33,19 +32,6 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
 
     fetchDetails();
   }, [id]);
-
-  useEffect(() => {
-    if (!manga) return;
-    const title = manga.title?.english || manga.title?.romaji;
-    if (!title) return;
-
-    fetch(`/api/weebcentral?title=${encodeURIComponent(title)}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.url) setWeebUrl(data.url);
-      })
-      .catch(() => {});
-  }, [manga]);
 
   if (loading) {
     return (
@@ -74,6 +60,7 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
   const title = manga.title?.english || manga.title?.romaji || "Untitled";
   const bannerImage = manga.bannerImage;
   const coverImage = manga.coverImage?.extraLarge || manga.coverImage?.large || "/hero-image.jpg";
+
   const formatDate = (date: any) => {
     if (!date) return null;
     return new Date(date.year, date.month - 1, date.day).toLocaleDateString(
@@ -82,13 +69,16 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
     );
   };
 
+  const mangaPlusUrl = `https://mangaplus.shueisha.co.jp/search_result?q=${encodeURIComponent(
+    manga.title?.english || manga.title?.romaji || ""
+  )}`;
+
   return (
     <div className="min-h-screen bg-[#0B0F19]">
       {/* Dynamic Background with Banner */}
       {bannerImage && (
         <div className="fixed inset-0 h-96 -z-10 overflow-hidden">
           <Image src={bannerImage} alt={title} fill className="object-cover" priority />
-          {/* Gradient Overlays */}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0B0F19]" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19] via-transparent to-[#0B0F19]" />
           <div className="absolute inset-0 backdrop-blur-sm" />
@@ -98,7 +88,7 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
       {/* Content */}
       <div className="relative pt-20 pb-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Top Section with Cover and Basic Info */}
+          {/* Top Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -108,13 +98,7 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
             {/* Cover Image */}
             <div className="md:col-span-1">
               <div className="relative h-96 rounded-xl overflow-hidden shadow-2xl">
-                <Image
-                  src={coverImage}
-                  alt={title}
-                  fill
-                  className="object-cover"
-                />
-                {/* Rating Badge */}
+                <Image src={coverImage} alt={title} fill className="object-cover" />
                 {manga.averageScore && (
                   <div className="absolute bottom-4 right-4 flex items-center gap-2 px-4 py-2 rounded-lg backdrop-blur-md bg-white/20 border border-white/30">
                     <Star size={18} className="text-brand-pink fill-brand-pink" />
@@ -133,9 +117,7 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
               >
-                <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-                  {title}
-                </h1>
+                <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">{title}</h1>
                 {manga.title?.native && (
                   <p className="text-white/60 mb-4">{manga.title.native}</p>
                 )}
@@ -195,28 +177,15 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
                     </motion.a>
                   )}
 
-                  {/* Read Here Button */}
                   <motion.a
-                    href={weebUrl || "https://weebcentral.com"}
+                    href={mangaPlusUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     whileHover={{ scale: 1.05 }}
                     className="flex items-center gap-2 px-6 py-3 rounded-lg bg-brand-pink text-white hover:bg-brand-pink/80 transition-all font-medium"
                   >
                     <BookOpen size={18} />
-                    {weebUrl ? "Read Here" : "Searching..."}
-                  </motion.a>
-
-                  {/* Download Button */}
-                  <motion.a
-                    href={weebUrl || "https://weebcentral.com"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ scale: 1.05 }}
-                    className="flex items-center gap-2 px-6 py-3 rounded-lg bg-white/10 border border-brand-pink/50 text-brand-pink hover:bg-brand-pink/10 transition-all font-medium"
-                  >
-                    <Download size={18} />
-                    {weebUrl ? "Download" : "Searching..."}
+                    Read on MangaPlus
                   </motion.a>
                 </div>
               </motion.div>
@@ -241,14 +210,13 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
             </motion.div>
           )}
 
-          {/* Genres, Tags */}
+          {/* Genres & Tags */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             className="mb-12"
           >
-            {/* Genres */}
             {manga.genres && manga.genres.length > 0 && (
               <div className="mb-6">
                 <h3 className="text-xl font-bold text-white mb-4">Genres</h3>
@@ -265,7 +233,6 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
               </div>
             )}
 
-            {/* Tags */}
             {manga.tags && manga.tags.length > 0 && (
               <div>
                 <h3 className="text-xl font-bold text-white mb-4">Tags</h3>
@@ -380,7 +347,8 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
                         />
                       </div>
                       <p className="text-white/80 text-xs font-medium line-clamp-2 group-hover:text-brand-pink transition-colors">
-                        {rec.mediaRecommendation?.title?.english || rec.mediaRecommendation?.title?.romaji}
+                        {rec.mediaRecommendation?.title?.english ||
+                          rec.mediaRecommendation?.title?.romaji}
                       </p>
                     </motion.div>
                   </Link>
