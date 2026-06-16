@@ -5,34 +5,45 @@ export async function GET(req: NextRequest) {
   if (!title) return NextResponse.json({ url: null });
 
   try {
-    const res = await fetch(
+    // Step 1: Search for the manga
+    const searchRes = await fetch(
       `https://api.mangadex.org/manga?title=${encodeURIComponent(title)}&limit=1&contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica`,
-      {
-        headers: {
-          "Accept": "application/json",
-        },
-        next: { revalidate: 3600 },
-      }
+      { headers: { Accept: "application/json" } }
     );
-
-    const data = await res.json();
-    const manga = data?.data?.[0];
-
+    const searchData = await searchRes.json();
+    const manga = searchData?.data?.[0];
     if (!manga) return NextResponse.json({ url: null });
 
-    const id = manga.id;
-    const slug =
+    const mangaId = manga.id;
+
+    // Step 2: Get the first English chapter
+    const chapterRes = await fetch(
+      `https://api.mangadex.org/chapter?manga=${mangaId}&translatedLanguage[]=en&order[chapter]=asc&limit=1&contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica`,
+      { headers: { Accept: "application/json" } }
+    );
+    const chapterData = await chapterRes.json();
+    const chapter = chapterData?.data?.[0];
+
+    if (chapter) {
+      // Direct link to reading the first chapter
+      return NextResponse.json({
+        url: `https://mangadex.org/chapter/${chapter.id}`,
+      });
+    }
+
+    // Fallback to manga page if no chapter found
+    const slug = (
       manga.attributes?.title?.en ||
       Object.values(manga.attributes?.title || {})[0] ||
-      "manga";
-
-    const slugified = (slug as string)
+      "manga"
+    )
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
 
-    const url = `https://mangadex.org/title/${id}/${slugified}`;
-    return NextResponse.json({ url });
+    return NextResponse.json({
+      url: `https://mangadex.org/title/${mangaId}/${slug}`,
+    });
   } catch (err) {
     console.error("MangaDex API error:", err);
     return NextResponse.json({ url: null });
