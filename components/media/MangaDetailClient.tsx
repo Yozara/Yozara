@@ -15,6 +15,7 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
   const [manga, setManga] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [weebUrl, setWeebUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -32,6 +33,19 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
 
     fetchDetails();
   }, [id]);
+
+  useEffect(() => {
+    if (!manga) return;
+    const title = manga.title?.english || manga.title?.romaji;
+    if (!title) return;
+
+    fetch(`/api/weebcentral?title=${encodeURIComponent(title)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.url) setWeebUrl(data.url);
+      })
+      .catch(() => {});
+  }, [manga]);
 
   if (loading) {
     return (
@@ -69,20 +83,15 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
   };
 
   return (
-  <div
-  className="min-h-screen bg-cover bg-center bg-no-repeat"
-  style={{
-    backgroundImage: "url('/images/bg1.jpg')",
-  }}
->
+    <div className="min-h-screen bg-[#0B0F19]">
+      {/* Dynamic Background with Banner */}
       {bannerImage && (
         <div className="fixed inset-0 h-96 -z-10 overflow-hidden">
           <Image src={bannerImage} alt={title} fill className="object-cover" priority />
           {/* Gradient Overlays */}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0B0F19]" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19] via-transparent to-[#0B0F19]" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0B0F19] backdrop-blur-md" />
-<div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19] via-transparent to-[#0B0F19] backdrop-blur-md" />
+          <div className="absolute inset-0 backdrop-blur-sm" />
         </div>
       )}
 
@@ -108,10 +117,7 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
                 {/* Rating Badge */}
                 {manga.averageScore && (
                   <div className="absolute bottom-4 right-4 flex items-center gap-2 px-4 py-2 rounded-lg backdrop-blur-md bg-white/20 border border-white/30">
-                    <Star
-                      size={18}
-                      className="text-brand-pink fill-brand-pink"
-                    />
+                    <Star size={18} className="text-brand-pink fill-brand-pink" />
                     <span className="text-white font-bold text-lg">
                       {manga.averageScore / 10}
                     </span>
@@ -139,17 +145,13 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
                   {manga.chapters && (
                     <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-lg p-3">
                       <p className="text-white/60 text-sm">Chapters</p>
-                      <p className="text-white text-lg font-bold">
-                        {manga.chapters}
-                      </p>
+                      <p className="text-white text-lg font-bold">{manga.chapters}</p>
                     </div>
                   )}
                   {manga.volumes && (
                     <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-lg p-3">
                       <p className="text-white/60 text-sm">Volumes</p>
-                      <p className="text-white text-lg font-bold">
-                        {manga.volumes}
-                      </p>
+                      <p className="text-white text-lg font-bold">{manga.volumes}</p>
                     </div>
                   )}
                   {manga.status && (
@@ -179,33 +181,45 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
                 </div>
 
                 {/* Action Buttons */}
-<div className="flex flex-wrap gap-3">
-  {manga.siteUrl && (
-    <motion.a
-      href={manga.siteUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      whileHover={{ scale: 1.05 }}
-      className="flex items-center gap-2 px-6 py-3 rounded-lg bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all font-medium"
-    >
-      <ExternalLink size={18} />
-      AniList
-    </motion.a>
-  )}
+                <div className="flex flex-wrap gap-3">
+                  {manga.siteUrl && (
+                    <motion.a
+                      href={manga.siteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      whileHover={{ scale: 1.05 }}
+                      className="flex items-center gap-2 px-6 py-3 rounded-lg bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all font-medium"
+                    >
+                      <ExternalLink size={18} />
+                      AniList
+                    </motion.a>
+                  )}
 
-  {/* Read Here Button */}
-  <motion.a
-    href={`https://weebcentral.com/search/simple?q=${encodeURIComponent(title)}`}
-    target="_blank"
-    rel="noopener noreferrer"
-    whileHover={{ scale: 1.05 }}
-    className="flex items-center gap-2 px-6 py-3 rounded-lg bg-brand-pink text-white hover:bg-brand-pink/80 transition-all font-medium"
-  >
-    <BookOpen size={18} />
-    Read 
-  </motion.a>
-</div>   
-                </motion.div>
+                  {/* Read Here Button */}
+                  <motion.a
+                    href={weebUrl || "https://weebcentral.com"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    whileHover={{ scale: 1.05 }}
+                    className="flex items-center gap-2 px-6 py-3 rounded-lg bg-brand-pink text-white hover:bg-brand-pink/80 transition-all font-medium"
+                  >
+                    <BookOpen size={18} />
+                    {weebUrl ? "Read Here" : "Searching..."}
+                  </motion.a>
+
+                  {/* Download Button */}
+                  <motion.a
+                    href={weebUrl || "https://weebcentral.com"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    whileHover={{ scale: 1.05 }}
+                    className="flex items-center gap-2 px-6 py-3 rounded-lg bg-white/10 border border-brand-pink/50 text-brand-pink hover:bg-brand-pink/10 transition-all font-medium"
+                  >
+                    <Download size={18} />
+                    {weebUrl ? "Download" : "Searching..."}
+                  </motion.a>
+                </div>
+              </motion.div>
             </div>
           </motion.div>
 
@@ -305,7 +319,7 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
             </motion.div>
           )}
 
-          {/* Related Manga */}
+          {/* Related */}
           {manga.relations?.edges && manga.relations.edges.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -320,10 +334,7 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
                     key={edge.node.id}
                     href={`/${edge.node.type === "ANIME" ? "anime" : "manga"}/${edge.node.id}`}
                   >
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      className="group cursor-pointer"
-                    >
+                    <motion.div whileHover={{ scale: 1.05 }} className="group cursor-pointer">
                       <div className="relative h-32 rounded-lg overflow-hidden mb-2 border border-white/10 group-hover:border-brand-pink/50 transition-colors">
                         <Image
                           src={edge.node.coverImage?.large || "/hero-image.jpg"}
@@ -352,32 +363,24 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.6 }}
             >
-              <h2 className="text-2xl font-bold text-white mb-6">
-                Similar Manga
-              </h2>
+              <h2 className="text-2xl font-bold text-white mb-6">Similar Manga</h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {manga.recommendations.nodes.slice(0, 8).map((rec: any) => (
                   <Link
                     key={rec.mediaRecommendation?.id}
                     href={`/${rec.mediaRecommendation?.type === "ANIME" ? "anime" : "manga"}/${rec.mediaRecommendation?.id}`}
                   >
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      className="group cursor-pointer"
-                    >
+                    <motion.div whileHover={{ scale: 1.05 }} className="group cursor-pointer">
                       <div className="relative h-32 rounded-lg overflow-hidden mb-2 border border-white/10 group-hover:border-brand-pink/50 transition-colors">
                         <Image
                           src={rec.mediaRecommendation?.coverImage?.large || "/hero-image.jpg"}
-                          alt={
-                            rec.mediaRecommendation?.title?.romaji
-                          }
+                          alt={rec.mediaRecommendation?.title?.romaji}
                           fill
                           className="object-cover group-hover:scale-110 transition-transform duration-300"
                         />
                       </div>
                       <p className="text-white/80 text-xs font-medium line-clamp-2 group-hover:text-brand-pink transition-colors">
-                        {rec.mediaRecommendation?.title?.english ||
-                          rec.mediaRecommendation?.title?.romaji}
+                        {rec.mediaRecommendation?.title?.english || rec.mediaRecommendation?.title?.romaji}
                       </p>
                     </motion.div>
                   </Link>
