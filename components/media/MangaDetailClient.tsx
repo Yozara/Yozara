@@ -202,19 +202,7 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
     className="flex items-center gap-2 px-6 py-3 rounded-lg bg-brand-pink text-white hover:bg-brand-pink/80 transition-all font-medium"
   >
     <BookOpen size={18} />
-    Read Here
-  </motion.a>
-
-  {/* Download Button */}
-  <motion.a
-    href={`https://weebcentral.com/search/simple?q=${encodeURIComponent(title)}`}
-    target="_blank"
-    rel="noopener noreferrer"
-    whileHover={{ scale: 1.05 }}
-    className="flex items-center gap-2 px-6 py-3 rounded-lg bg-white/10 border border-brand-pink/50 text-brand-pink hover:bg-brand-pink/10 transition-all font-medium"
-  >
-    <Download size={18} />
-    Download
+    Read 
   </motion.a>
 </div>   
                 </motion.div>
