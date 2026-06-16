@@ -218,7 +218,7 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
                     }`}
                   >
                     <BookOpen size={18} />
-                    {mangaDexUrl ? "Read on MangaDex" : "Finding manga..."}
+                    {mangaDexUrl ? "Read" : "Finding manga..."}
                   </motion.a>
                 </div>
               </motion.div>
