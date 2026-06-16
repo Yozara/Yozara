@@ -15,6 +15,7 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
   const [manga, setManga] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [mangaDexUrl, setMangaDexUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -29,9 +30,21 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
         setLoading(false);
       }
     };
-
     fetchDetails();
   }, [id]);
+
+  useEffect(() => {
+    if (!manga) return;
+    const title = manga.title?.english || manga.title?.romaji;
+    if (!title) return;
+
+    fetch(`/api/mangadex?title=${encodeURIComponent(title)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.url) setMangaDexUrl(data.url);
+      })
+      .catch(() => {});
+  }, [manga]);
 
   if (loading) {
     return (
@@ -59,7 +72,10 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
 
   const title = manga.title?.english || manga.title?.romaji || "Untitled";
   const bannerImage = manga.bannerImage;
-  const coverImage = manga.coverImage?.extraLarge || manga.coverImage?.large || "/hero-image.jpg";
+  const coverImage =
+    manga.coverImage?.extraLarge ||
+    manga.coverImage?.large ||
+    "/hero-image.jpg";
 
   const formatDate = (date: any) => {
     if (!date) return null;
@@ -69,16 +85,18 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
     );
   };
 
-  const mangaPlusUrl = `https://mangaplus.shueisha.co.jp/search_result?q=${encodeURIComponent(
-    manga.title?.english || manga.title?.romaji || ""
-  )}`;
-
   return (
     <div className="min-h-screen bg-[#0B0F19]">
       {/* Dynamic Background with Banner */}
       {bannerImage && (
         <div className="fixed inset-0 h-96 -z-10 overflow-hidden">
-          <Image src={bannerImage} alt={title} fill className="object-cover" priority />
+          <Image
+            src={bannerImage}
+            alt={title}
+            fill
+            className="object-cover"
+            priority
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0B0F19]" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19] via-transparent to-[#0B0F19]" />
           <div className="absolute inset-0 backdrop-blur-sm" />
@@ -98,7 +116,12 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
             {/* Cover Image */}
             <div className="md:col-span-1">
               <div className="relative h-96 rounded-xl overflow-hidden shadow-2xl">
-                <Image src={coverImage} alt={title} fill className="object-cover" />
+                <Image
+                  src={coverImage}
+                  alt={title}
+                  fill
+                  className="object-cover"
+                />
                 {manga.averageScore && (
                   <div className="absolute bottom-4 right-4 flex items-center gap-2 px-4 py-2 rounded-lg backdrop-blur-md bg-white/20 border border-white/30">
                     <Star size={18} className="text-brand-pink fill-brand-pink" />
@@ -117,7 +140,9 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
               >
-                <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">{title}</h1>
+                <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+                  {title}
+                </h1>
                 {manga.title?.native && (
                   <p className="text-white/60 mb-4">{manga.title.native}</p>
                 )}
@@ -127,13 +152,17 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
                   {manga.chapters && (
                     <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-lg p-3">
                       <p className="text-white/60 text-sm">Chapters</p>
-                      <p className="text-white text-lg font-bold">{manga.chapters}</p>
+                      <p className="text-white text-lg font-bold">
+                        {manga.chapters}
+                      </p>
                     </div>
                   )}
                   {manga.volumes && (
                     <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-lg p-3">
                       <p className="text-white/60 text-sm">Volumes</p>
-                      <p className="text-white text-lg font-bold">{manga.volumes}</p>
+                      <p className="text-white text-lg font-bold">
+                        {manga.volumes}
+                      </p>
                     </div>
                   )}
                   {manga.status && (
@@ -178,14 +207,18 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
                   )}
 
                   <motion.a
-                    href={mangaPlusUrl}
+                    href={mangaDexUrl || "#"}
                     target="_blank"
                     rel="noopener noreferrer"
-                    whileHover={{ scale: 1.05 }}
-                    className="flex items-center gap-2 px-6 py-3 rounded-lg bg-brand-pink text-white hover:bg-brand-pink/80 transition-all font-medium"
+                    whileHover={{ scale: mangaDexUrl ? 1.05 : 1 }}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all font-medium ${
+                      mangaDexUrl
+                        ? "bg-brand-pink text-white hover:bg-brand-pink/80 cursor-pointer"
+                        : "bg-brand-pink/40 text-white/60 cursor-wait"
+                    }`}
                   >
                     <BookOpen size={18} />
-                    Read on MangaPlus
+                    {mangaDexUrl ? "Read on MangaDex" : "Finding manga..."}
                   </motion.a>
                 </div>
               </motion.div>
@@ -299,12 +332,19 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
                 {manga.relations.edges.slice(0, 8).map((edge: any) => (
                   <Link
                     key={edge.node.id}
-                    href={`/${edge.node.type === "ANIME" ? "anime" : "manga"}/${edge.node.id}`}
+                    href={`/${
+                      edge.node.type === "ANIME" ? "anime" : "manga"
+                    }/${edge.node.id}`}
                   >
-                    <motion.div whileHover={{ scale: 1.05 }} className="group cursor-pointer">
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      className="group cursor-pointer"
+                    >
                       <div className="relative h-32 rounded-lg overflow-hidden mb-2 border border-white/10 group-hover:border-brand-pink/50 transition-colors">
                         <Image
-                          src={edge.node.coverImage?.large || "/hero-image.jpg"}
+                          src={
+                            edge.node.coverImage?.large || "/hero-image.jpg"
+                          }
                           alt={edge.node.title?.romaji}
                           fill
                           className="object-cover group-hover:scale-110 transition-transform duration-300"
@@ -324,38 +364,51 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
           )}
 
           {/* Recommendations */}
-          {manga.recommendations?.nodes && manga.recommendations.nodes.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-            >
-              <h2 className="text-2xl font-bold text-white mb-6">Similar Manga</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {manga.recommendations.nodes.slice(0, 8).map((rec: any) => (
-                  <Link
-                    key={rec.mediaRecommendation?.id}
-                    href={`/${rec.mediaRecommendation?.type === "ANIME" ? "anime" : "manga"}/${rec.mediaRecommendation?.id}`}
-                  >
-                    <motion.div whileHover={{ scale: 1.05 }} className="group cursor-pointer">
-                      <div className="relative h-32 rounded-lg overflow-hidden mb-2 border border-white/10 group-hover:border-brand-pink/50 transition-colors">
-                        <Image
-                          src={rec.mediaRecommendation?.coverImage?.large || "/hero-image.jpg"}
-                          alt={rec.mediaRecommendation?.title?.romaji}
-                          fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-300"
-                        />
-                      </div>
-                      <p className="text-white/80 text-xs font-medium line-clamp-2 group-hover:text-brand-pink transition-colors">
-                        {rec.mediaRecommendation?.title?.english ||
-                          rec.mediaRecommendation?.title?.romaji}
-                      </p>
-                    </motion.div>
-                  </Link>
-                ))}
-              </div>
-            </motion.div>
-          )}
+          {manga.recommendations?.nodes &&
+            manga.recommendations.nodes.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+              >
+                <h2 className="text-2xl font-bold text-white mb-6">
+                  Similar Manga
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {manga.recommendations.nodes.slice(0, 8).map((rec: any) => (
+                    <Link
+                      key={rec.mediaRecommendation?.id}
+                      href={`/${
+                        rec.mediaRecommendation?.type === "ANIME"
+                          ? "anime"
+                          : "manga"
+                      }/${rec.mediaRecommendation?.id}`}
+                    >
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        className="group cursor-pointer"
+                      >
+                        <div className="relative h-32 rounded-lg overflow-hidden mb-2 border border-white/10 group-hover:border-brand-pink/50 transition-colors">
+                          <Image
+                            src={
+                              rec.mediaRecommendation?.coverImage?.large ||
+                              "/hero-image.jpg"
+                            }
+                            alt={rec.mediaRecommendation?.title?.romaji}
+                            fill
+                            className="object-cover group-hover:scale-110 transition-transform duration-300"
+                          />
+                        </div>
+                        <p className="text-white/80 text-xs font-medium line-clamp-2 group-hover:text-brand-pink transition-colors">
+                          {rec.mediaRecommendation?.title?.english ||
+                            rec.mediaRecommendation?.title?.romaji}
+                        </p>
+                      </motion.div>
+                    </Link>
+                  ))}
+                </div>
+              </motion.div>
+            )}
         </div>
       </div>
     </div>
