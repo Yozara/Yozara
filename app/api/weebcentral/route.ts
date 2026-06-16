@@ -6,30 +6,22 @@ export async function GET(req: NextRequest) {
 
   try {
     const res = await fetch(
-      `https://weebcentral.com/search/simple?q=${encodeURIComponent(title)}`,
-      {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          Accept:
-            "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-          "Accept-Language": "en-US,en;q=0.9",
-          Referer: "https://weebcentral.com/",
-        },
-      }
+      `https://jumpg-webapi.tokyo-cdn.com/api/title_list/allV2?format=json`,
+      { headers: { "Referer": "https://mangaplus.shueisha.co.jp" } }
+    );
+    const data = await res.json();
+    const allTitles = data?.success?.allTitlesViewV2?.AllTitlesGroup?.flatMap((g: any) => g.titles) ?? [];
+
+    const search = title.toLowerCase();
+    const match = allTitles.find((t: any) =>
+      t?.name?.toLowerCase().includes(search)
     );
 
-    const html = await res.text();
-
-    // Extract first manga series URL from search results
-    const match = html.match(
-      /href="(https:\/\/weebcentral\.com\/series\/[^"]+)"/
-    );
-    const url = match ? match[1] : null;
-
-    return NextResponse.json({ url });
+    if (!match) return NextResponse.json({ url: null });
+    return NextResponse.json({
+      url: `https://mangaplus.shueisha.co.jp/titles/${match.titleId}`
+    });
   } catch (err) {
-    console.error("WeebCentral fetch error:", err);
     return NextResponse.json({ url: null });
   }
 }
