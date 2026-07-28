@@ -109,7 +109,7 @@ export default function Navbar() {
         {/* Anime */}
         <Link href="/anime">
           <motion.div
-  initial={{ x: -90 }}
+  initial={{ x: -50 }}
   whileHover={{ x: 0 }}
   transition={{ type: "spring", stiffness: 300, damping: 25 }}
   className={`flex items-center gap-3 pl-3 pr-5 py-3 rounded-r-2xl cursor-pointer shadow-xl ${
@@ -126,7 +126,7 @@ export default function Navbar() {
         {/* Manga */}
         <Link href="/manga">
           <motion.div
-  initial={{ x: -90 }}
+  initial={{ x: -50 }}
   whileHover={{ x: 0 }}
   transition={{ type: "spring", stiffness: 300, damping: 25 }}
   className={`flex items-center gap-3 pl-3 pr-5 py-3 rounded-r-2xl cursor-pointer shadow-xl ${
