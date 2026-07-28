@@ -635,7 +635,7 @@ export default function HomePage() {
         />
 
         <MediaRow
-          title="Top Rated All Time"
+          title="Top Rated All Time "
           icon={<Star size={22} className="text-yellow-400" />}
           items={topRated}
           type="ANIME"
