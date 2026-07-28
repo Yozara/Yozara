@@ -436,7 +436,7 @@ function HeroSection({ user }: { user: User | null }) {
   }, []);
 
   return (
-    <section className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden">
+    <section className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden bg-transparent">
       {/* Background */}
       <div className="absolute inset-0 -z-10">
         <Image src="/bg-home.png" alt="hero" fill className="object-cover" priority />
