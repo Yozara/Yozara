@@ -45,7 +45,7 @@ export default function Navbar() {
       router.refresh();
     };
   return (
-    <header className="absolute top-0 left-0 right-0 z-50 h-24 bg-gradient-to-b from-brand-blue from-60% to-transparent pointer-events-auto">
+    <header className="absolute top-0 left-0 right-0 z-50 h-24 pointer-events-auto">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between mt-2">
         
         {/* Left: Bigger Logo and Brand Name */}
