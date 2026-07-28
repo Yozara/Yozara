@@ -1,192 +1,648 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
-import { motion } from "framer-motion";
-import { Sparkles, Compass, Users, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Hero from "@/components/Hero";
-import TrendingScroll from "@/components/TrendingScroll";
-import Features from "@/components/Features";
-import FAQ from "@/components/FAQ";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Flame, Star, Tv, BookOpen, Shuffle, Compass, ChevronRight,
+  ChevronLeft, Clock, Sparkles, X, Zap
+} from "lucide-react";
+import { getTrendingMedia, searchMedia } from "@/utils/anilist/client";
 
-export default function HomePage() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+// ─── Types ───────────────────────────────────────────────────────────────────
+type MediaItem = {
+  id: number;
+  type?: "ANIME" | "MANGA";
+  title?: { romaji?: string; english?: string };
+  coverImage?: { large?: string; extraLarge?: string };
+  bannerImage?: string;
+  averageScore?: number;
+  seasonYear?: number;
+  season?: string;
+  status?: string;
+  genres?: string[];
+  episodes?: number;
+  chapters?: number;
+};
+
+// ─── Genre config ─────────────────────────────────────────────────────────────
+const GENRES = [
+  { name: "Action", emoji: "⚔️", color: "from-red-500 to-orange-500" },
+  { name: "Romance", emoji: "💕", color: "from-pink-500 to-rose-400" },
+  { name: "Comedy", emoji: "😂", color: "from-yellow-400 to-amber-400" },
+  { name: "Horror", emoji: "👻", color: "from-purple-800 to-gray-900" },
+  { name: "Fantasy", emoji: "🧙", color: "from-violet-500 to-purple-600" },
+  { name: "Sci-Fi", emoji: "🚀", color: "from-cyan-500 to-blue-500" },
+  { name: "Slice of Life", emoji: "🌸", color: "from-green-400 to-teal-400" },
+  { name: "Mystery", emoji: "🔍", color: "from-indigo-600 to-blue-800" },
+  { name: "Sports", emoji: "⚽", color: "from-emerald-400 to-green-600" },
+  { name: "Psychological", emoji: "🧠", color: "from-fuchsia-600 to-pink-800" },
+];
+
+const QUIZ_QUESTIONS = [
+  {
+    q: "What's your mood rn? 🎭",
+    options: ["Hype & Excited ⚡", "Chill & Cozy 🍵", "Cry my eyes out 😭", "Mind = Blown 🤯"],
+  },
+  {
+    q: "Pick your vibe 🎨",
+    options: ["Epic Battles ⚔️", "Sweet Romance 💕", "Laugh out loud 😂", "Dark & Deep 🌑"],
+  },
+  {
+    q: "How long you got? ⏱️",
+    options: ["Quick watch (1-12 eps)", "Medium (13-50 eps)", "Long haul (50+ eps)", "Ongoing 📡"],
+  },
+];
+
+const QUIZ_GENRE_MAP: Record<string, string[]> = {
+  "Hype & Excited ⚡": ["Action", "Sports"],
+  "Chill & Cozy 🍵": ["Slice of Life", "Comedy"],
+  "Cry my eyes out 😭": ["Romance", "Drama"],
+  "Mind = Blown 🤯": ["Psychological", "Sci-Fi"],
+  "Epic Battles ⚔️": ["Action", "Fantasy"],
+  "Sweet Romance 💕": ["Romance", "Slice of Life"],
+  "Laugh out loud 😂": ["Comedy", "Slice of Life"],
+  "Dark & Deep 🌑": ["Horror", "Mystery"],
+};
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function MediaRow({
+  title, icon, items, type, loading,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  items: MediaItem[];
+  type: "ANIME" | "MANGA";
+  loading: boolean;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scroll = (dir: "left" | "right") => {
+    scrollRef.current?.scrollBy({ left: dir === "right" ? 340 : -340, behavior: "smooth" });
+  };
+
+  return (
+    <section className="mb-14">
+      <div className="flex items-center justify-between mb-5 px-4 sm:px-6">
+        <h2 className="text-2xl font-extrabold text-white flex items-center gap-2">
+          {icon} {title}
+        </h2>
+        <Link
+          href={`/${type.toLowerCase()}`}
+          className="text-brand-pink text-sm font-semibold flex items-center gap-1 hover:underline"
+        >
+          See all <ChevronRight size={15} />
+        </Link>
+      </div>
+      <div className="relative group">
+        <button
+          onClick={() => scroll("left")}
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black/70 hover:bg-brand-pink text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all -translate-x-1/2"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        <div
+          ref={scrollRef}
+          className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory px-4 sm:px-6 pb-2"
+        >
+          {loading
+            ? Array.from({ length: 8 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="shrink-0 w-[160px] h-[240px] rounded-2xl bg-white/5 animate-pulse snap-start"
+                />
+              ))
+            : items.map((item) => {
+                const title = item.title?.english || item.title?.romaji || "Untitled";
+                const img = item.coverImage?.extraLarge || item.coverImage?.large || "/hero-image.jpg";
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/${type.toLowerCase()}/${item.id}`}
+                    className="shrink-0 snap-start"
+                  >
+                    <motion.div
+                      whileHover={{ scale: 1.05, y: -6 }}
+                      className="relative w-[160px] h-[240px] rounded-2xl overflow-hidden border border-white/10 hover:border-brand-pink/60 transition-colors cursor-pointer"
+                    >
+                      <Image src={img} alt={title} fill className="object-cover" sizes="160px" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      {item.averageScore && (
+                        <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded-full">
+                          <Star size={10} className="text-yellow-400 fill-yellow-400" />
+                          <span className="text-white text-[10px] font-bold">{(item.averageScore / 10).toFixed(1)}</span>
+                        </div>
+                      )}
+                      <div className="absolute bottom-3 left-3 right-3">
+                        <p className="text-white text-xs font-semibold line-clamp-2 leading-tight">{title}</p>
+                        {item.seasonYear && (
+                          <p className="text-white/50 text-[10px] mt-1">{item.seasonYear}</p>
+                        )}
+                      </div>
+                    </motion.div>
+                  </Link>
+                );
+              })}
+        </div>
+        <button
+          onClick={() => scroll("right")}
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black/70 hover:bg-brand-pink text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all translate-x-1/2"
+        >
+          <ChevronRight size={20} />
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function RecentlyViewed() {
+  const [items, setItems] = useState<{ id: number; type: string; title: string; image: string }[]>([]);
 
   useEffect(() => {
-    const supabase = createClient();
+    try {
+      const stored = JSON.parse(localStorage.getItem("yozara_recent") || "[]");
+      setItems(stored.slice(0, 10));
+    } catch {}
+  }, []);
 
-    const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user ?? null);
-      setLoading(false);
-    };
+  if (items.length === 0) return null;
 
-    checkAuth();
+  return (
+    <section className="mb-14">
+      <div className="flex items-center gap-2 mb-5 px-4 sm:px-6">
+        <h2 className="text-2xl font-extrabold text-white flex items-center gap-2">
+          <Clock size={22} className="text-brand-pink" /> Recently Viewed
+        </h2>
+      </div>
+      <div className="flex gap-4 overflow-x-auto no-scrollbar px-4 sm:px-6 pb-2">
+        {items.map((item) => (
+          <Link key={item.id} href={`/${item.type}/${item.id}`} className="shrink-0">
+            <motion.div
+              whileHover={{ scale: 1.05, y: -4 }}
+              className="relative w-[130px] h-[195px] rounded-xl overflow-hidden border border-white/10 hover:border-brand-pink/60 transition-colors"
+            >
+              <Image src={item.image} alt={item.title} fill className="object-cover" sizes="130px" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+              <p className="absolute bottom-2 left-2 right-2 text-white text-[10px] font-semibold line-clamp-2">{item.title}</p>
+            </motion.div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
+function GenreExplorer() {
+  const router = useRouter();
+  return (
+    <section className="mb-14 px-4 sm:px-6">
+      <h2 className="text-2xl font-extrabold text-white flex items-center gap-2 mb-5">
+        <Compass size={22} className="text-brand-pink" /> Browse by Genre
+      </h2>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+        {GENRES.map((g) => (
+          <motion.button
+            key={g.name}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => router.push(`/anime?genre=${encodeURIComponent(g.name)}`)}
+            className={`relative rounded-2xl p-4 bg-gradient-to-br ${g.color} flex flex-col items-center justify-center gap-1 h-20 shadow-lg overflow-hidden`}
+          >
+            <span className="text-2xl">{g.emoji}</span>
+            <span className="text-white text-xs font-bold">{g.name}</span>
+          </motion.button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function WhatShouldIWatch() {
+  const [open, setOpen] = useState(false);
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState<string[]>([]);
+  const [result, setResult] = useState<MediaItem | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleAnswer = useCallback(async (answer: string) => {
+    const newAnswers = [...answers, answer];
+    setAnswers(newAnswers);
+
+    if (step < QUIZ_QUESTIONS.length - 1) {
+      setStep(step + 1);
+    } else {
+      // Find genre from answers
+      setLoading(true);
+      const genres = newAnswers.flatMap((a) => QUIZ_GENRE_MAP[a] || []);
+      const genre = genres[0] || "Action";
+      try {
+        const data = await searchMedia("ANIME", { genre: [genre], sort: "POPULARITY_DESC", page: 1 });
+        const items: MediaItem[] = data?.Page?.media || [];
+        const random = items[Math.floor(Math.random() * Math.min(items.length, 10))];
+        setResult(random || null);
+      } catch {
+        setResult(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+  }, [answers, step]);
+
+  const reset = () => {
+    setStep(0);
+    setAnswers([]);
+    setResult(null);
+    setLoading(false);
+  };
+
+  const close = () => {
+    setOpen(false);
+    setTimeout(reset, 300);
+  };
+
+  return (
+    <>
+      {/* Floating Button */}
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setOpen(true)}
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-gradient-to-r from-brand-pink to-purple-500 text-white font-bold shadow-2xl shadow-brand-pink/40 text-sm"
+      >
+        <Sparkles size={18} /> What should I watch?
+      </motion.button>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={close}
+          >
+            <motion.div
+              initial={{ scale: 0.85, opacity: 0, y: 40 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.85, opacity: 0, y: 40 }}
+              className="bg-[#0F1428] border border-white/10 rounded-3xl p-6 max-w-md w-full relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button onClick={close} className="absolute top-4 right-4 text-white/40 hover:text-white">
+                <X size={20} />
+              </button>
+
+              {!result && !loading && (
+                <>
+                  <div className="mb-6 text-center">
+                    <p className="text-white/50 text-sm mb-1">Question {step + 1} of {QUIZ_QUESTIONS.length}</p>
+                    <div className="w-full bg-white/10 rounded-full h-1.5 mb-4">
+                      <div
+                        className="bg-brand-pink h-1.5 rounded-full transition-all"
+                        style={{ width: `${((step) / QUIZ_QUESTIONS.length) * 100}%` }}
+                      />
+                    </div>
+                    <h3 className="text-white text-xl font-extrabold">{QUIZ_QUESTIONS[step].q}</h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {QUIZ_QUESTIONS[step].options.map((opt) => (
+                      <motion.button
+                        key={opt}
+                        whileHover={{ scale: 1.04 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => handleAnswer(opt)}
+                        className="bg-white/5 hover:bg-brand-pink/20 border border-white/10 hover:border-brand-pink/50 text-white text-sm font-semibold rounded-2xl p-4 text-left transition-all"
+                      >
+                        {opt}
+                      </motion.button>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {loading && (
+                <div className="text-center py-12">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                    className="w-12 h-12 border-4 border-brand-pink border-t-transparent rounded-full mx-auto mb-4"
+                  />
+                  <p className="text-white/60">Finding the perfect anime for you...</p>
+                </div>
+              )}
+
+              {result && !loading && (
+                <div className="text-center">
+                  <p className="text-brand-pink font-bold text-sm mb-3">✨ We think you'll love...</p>
+                  <div className="relative w-40 h-56 mx-auto rounded-2xl overflow-hidden mb-4 shadow-2xl">
+                    <Image
+                      src={result.coverImage?.extraLarge || result.coverImage?.large || "/hero-image.jpg"}
+                      alt={result.title?.english || result.title?.romaji || ""}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <h3 className="text-white text-lg font-extrabold mb-1">
+                    {result.title?.english || result.title?.romaji}
+                  </h3>
+                  {result.genres && (
+                    <p className="text-white/40 text-xs mb-4">{result.genres.slice(0, 3).join(" • ")}</p>
+                  )}
+                  <div className="flex gap-3 justify-center">
+                    <Link
+                      href={`/anime/${result.id}`}
+                      onClick={close}
+                      className="bg-brand-pink text-white px-5 py-2.5 rounded-full font-bold text-sm hover:bg-brand-pink/80 transition-all"
+                    >
+                      View Anime
+                    </Link>
+                    <button
+                      onClick={reset}
+                      className="bg-white/10 text-white px-5 py-2.5 rounded-full font-bold text-sm hover:bg-white/20 transition-all"
+                    >
+                      Try Again
+                    </button>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+function RandomPick() {
+  const router = useRouter();
+  const [spinning, setSpinning] = useState(false);
+
+  const handleRandom = async () => {
+    setSpinning(true);
+    try {
+      const page = Math.floor(Math.random() * 5) + 1;
+      const type = Math.random() > 0.5 ? "ANIME" : "MANGA";
+      const data = await searchMedia(type, { sort: "POPULARITY_DESC", page });
+      const items: MediaItem[] = data?.Page?.media || [];
+      if (items.length > 0) {
+        const pick = items[Math.floor(Math.random() * items.length)];
+        router.push(`/${type.toLowerCase()}/${pick.id}`);
+      }
+    } finally {
+      setSpinning(false);
+    }
+  };
+
+  return (
+    <section className="mb-14 px-4 sm:px-6">
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        onClick={handleRandom}
+        disabled={spinning}
+        className="w-full rounded-3xl bg-gradient-to-r from-purple-600 via-brand-pink to-orange-400 p-[2px]"
+      >
+        <div className="w-full rounded-3xl bg-[#0B0F19] flex items-center justify-center gap-3 py-5 px-6">
+          <motion.div
+            animate={spinning ? { rotate: 360 } : { rotate: 0 }}
+            transition={spinning ? { repeat: Infinity, duration: 0.6, ease: "linear" } : {}}
+          >
+            <Shuffle size={24} className="text-brand-pink" />
+          </motion.div>
+          <span className="text-white font-extrabold text-lg">
+            {spinning ? "Finding something for you..." : "🎲 Surprise Me! Random Anime or Manga"}
+          </span>
+        </div>
+      </motion.button>
+    </section>
+  );
+}
+
+// ─── Hero Section ─────────────────────────────────────────────────────────────
+function HeroSection({ user }: { user: User | null }) {
+  const router = useRouter();
+  const [bgItem, setBgItem] = useState<MediaItem | null>(null);
+  const [currentText, setCurrentText] = useState(0);
+  const texts = ["Anime Universe 🌸", "Manga World 📚", "Your Next Obsession ⚡"];
+
+  useEffect(() => {
+    getTrendingMedia("ANIME", 1).then((p) => {
+      const items: MediaItem[] = p?.media || [];
+      if (items.length > 0) setBgItem(items[Math.floor(Math.random() * 5)]);
     });
+    const interval = setInterval(() => setCurrentText((t) => (t + 1) % texts.length), 2500);
+    return () => clearInterval(interval);
+  }, []);
 
+  const bgImg = bgItem?.bannerImage || bgItem?.coverImage?.extraLarge || "/hero-image.jpg";
+
+  return (
+    <section className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 -z-10">
+        <Image src={bgImg} alt="hero" fill className="object-cover" priority />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0B0F19]/60 via-[#0B0F19]/70 to-[#0B0F19]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19]/80 via-transparent to-[#0B0F19]/80" />
+      </div>
+
+      {/* Decorative blobs */}
+      <div className="absolute top-20 left-10 w-64 h-64 bg-brand-pink/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-20 right-10 w-80 h-80 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="relative text-center px-4 max-w-4xl mx-auto">
+        {/* Japanese text accent */}
+        <motion.p
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-brand-pink/70 text-sm font-medium tracking-widest mb-4 uppercase"
+        >
+          ようこそ • Welcome to Yozara
+        </motion.p>
+
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-5xl md:text-7xl font-extrabold text-white mb-4 leading-tight"
+        >
+          Discover the
+          <br />
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={currentText}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="text-transparent bg-clip-text bg-gradient-to-r from-brand-pink via-purple-400 to-orange-400"
+            >
+              {texts[currentText]}
+            </motion.span>
+          </AnimatePresence>
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="text-white/70 text-lg md:text-xl mb-8 max-w-xl mx-auto"
+        >
+          Your one-stop destination for all things anime & manga. Explore, discover, and get lost in the world of Japanese media.
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="flex flex-wrap gap-4 justify-center"
+        >
+          {user ? (
+            <>
+              <Link
+                href="/anime"
+                className="flex items-center gap-2 px-7 py-3.5 rounded-full bg-brand-pink text-white font-bold hover:bg-brand-pink/80 transition-all shadow-lg shadow-brand-pink/30"
+              >
+                <Tv size={18} /> Browse Anime
+              </Link>
+              <Link
+                href="/manga"
+                className="flex items-center gap-2 px-7 py-3.5 rounded-full bg-white/10 border border-white/20 text-white font-bold hover:bg-white/20 transition-all backdrop-blur-sm"
+              >
+                <BookOpen size={18} /> Browse Manga
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/signup"
+                className="flex items-center gap-2 px-7 py-3.5 rounded-full bg-brand-pink text-white font-bold hover:bg-brand-pink/80 transition-all shadow-lg shadow-brand-pink/30"
+              >
+                <Zap size={18} /> Get Started Free
+              </Link>
+              <Link
+                href="/anime"
+                className="flex items-center gap-2 px-7 py-3.5 rounded-full bg-white/10 border border-white/20 text-white font-bold hover:bg-white/20 transition-all backdrop-blur-sm"
+              >
+                <Compass size={18} /> Explore Now
+              </Link>
+            </>
+          )}
+        </motion.div>
+
+        {/* Stats row */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="flex justify-center gap-8 mt-10"
+        >
+          {[
+            { label: "Anime Titles", value: "15,000+" },
+            { label: "Manga Series", value: "40,000+" },
+            { label: "Genres", value: "30+" },
+          ].map((s) => (
+            <div key={s.label} className="text-center">
+              <p className="text-white font-extrabold text-xl">{s.value}</p>
+              <p className="text-white/40 text-xs">{s.label}</p>
+            </div>
+          ))}
+        </motion.div>
+      </div>
+
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0B0F19] to-transparent pointer-events-none" />
+    </section>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
+export default function HomePage() {
+  const [user, setUser] = useState<User | null>(null);
+  const [trendingAnime, setTrendingAnime] = useState<MediaItem[]>([]);
+  const [trendingManga, setTrendingManga] = useState<MediaItem[]>([]);
+  const [topRated, setTopRated] = useState<MediaItem[]>([]);
+  const [airing, setAiring] = useState<MediaItem[]>([]);
+  const [loadingAnime, setLoadingAnime] = useState(true);
+  const [loadingManga, setLoadingManga] = useState(true);
+  const [loadingTop, setLoadingTop] = useState(true);
+  const [loadingAiring, setLoadingAiring] = useState(true);
+
+  // Auth
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user ?? null));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => setUser(s?.user ?? null));
     return () => subscription.unsubscribe();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex flex-col gap-24 pb-24">
-        <Hero />
-        <TrendingScroll />
-      </div>
-    );
-  }
+  // Fetch all data
+  useEffect(() => {
+    getTrendingMedia("ANIME", 1).then((p) => {
+      setTrendingAnime((p?.media || []).slice(0, 16));
+      setLoadingAnime(false);
+    });
+    getTrendingMedia("MANGA", 1).then((p) => {
+      setTrendingManga((p?.media || []).slice(0, 16));
+      setLoadingManga(false);
+    });
+    searchMedia("ANIME", { sort: "SCORE_DESC", page: 1 }).then((d) => {
+      setTopRated((d?.Page?.media || []).slice(0, 16));
+      setLoadingTop(false);
+    });
+    searchMedia("ANIME", { status: "RELEASING", sort: "POPULARITY_DESC", page: 1 }).then((d) => {
+      setAiring((d?.Page?.media || []).slice(0, 16));
+      setLoadingAiring(false);
+    });
+  }, []);
 
-  // Logged-in user homepage
-  if (user) {
-    return (
-      <div className="flex flex-col gap-16 pb-24">
-        {/* Welcome Hero */}
-        <section className="relative pt-24 pb-16 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="space-y-6"
-            >
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.32em] text-brand-pink backdrop-blur-md">
-                <Sparkles className="h-3.5 w-3.5" />
-                Welcome back
-              </div>
-              <h1 className="text-5xl sm:text-6xl font-bold text-white">
-                Your personalized anime universe awaits
-              </h1>
-              <p className="text-lg text-white/60 max-w-2xl">
-                Continue exploring, discover new favorites, and connect with fellow enthusiasts in the Yozara guild.
-              </p>
-            </motion.div>
-
-            {/* Quick Action Cards */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12"
-            >
-              <Link href="/anime">
-                <div className="group relative p-6 rounded-xl backdrop-blur-md bg-white/5 border border-white/10 hover:border-brand-pink/50 hover:bg-brand-pink/10 transition-all cursor-pointer h-full">
-                  <Compass className="h-8 w-8 text-brand-pink mb-3" />
-                  <h3 className="text-lg font-semibold text-white mb-2">Discover Anime</h3>
-                  <p className="text-sm text-white/60 mb-4">
-                    Browse thousands of anime with advanced filters
-                  </p>
-                  <div className="flex items-center gap-2 text-brand-pink text-sm font-medium group-hover:gap-3 transition-all">
-                    Start exploring <ArrowRight size={16} />
-                  </div>
-                </div>
-              </Link>
-
-              <Link href="/manga">
-                <div className="group relative p-6 rounded-xl backdrop-blur-md bg-white/5 border border-white/10 hover:border-brand-pink/50 hover:bg-brand-pink/10 transition-all cursor-pointer h-full">
-                  <Compass className="h-8 w-8 text-brand-pink mb-3" />
-                  <h3 className="text-lg font-semibold text-white mb-2">Explore Manga</h3>
-                  <p className="text-sm text-white/60 mb-4">
-                    Dive into the world of manga and light novels
-                  </p>
-                  <div className="flex items-center gap-2 text-brand-pink text-sm font-medium group-hover:gap-3 transition-all">
-                    View manga <ArrowRight size={16} />
-                  </div>
-                </div>
-              </Link>
-
-              <Link href="/profile">
-                <div className="group relative p-6 rounded-xl backdrop-blur-md bg-white/5 border border-white/10 hover:border-brand-pink/50 hover:bg-brand-pink/10 transition-all cursor-pointer h-full">
-                  <Users className="h-8 w-8 text-brand-pink mb-3" />
-                  <h3 className="text-lg font-semibold text-white mb-2">Your Profile</h3>
-                  <p className="text-sm text-white/60 mb-4">
-                    Check your AniPoints and guild card status
-                  </p>
-                  <div className="flex items-center gap-2 text-brand-pink text-sm font-medium group-hover:gap-3 transition-all">
-                    View profile <ArrowRight size={16} />
-                  </div>
-                </div>
-              </Link>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Trending Section */}
-        <TrendingScroll />
-
-        {/* Features for Logged-in Users */}
-        <section className="px-4 sm:px-6 lg:px-8 py-12">
-          <div className="max-w-6xl mx-auto space-y-8">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              className="text-center space-y-3"
-            >
-              <h2 className="text-3xl sm:text-4xl font-bold text-white">Coming Soon</h2>
-              <p className="text-white/60">More features to enhance your Yozara experience</p>
-            </motion.div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[
-                {
-                  title: "Vibe Check",
-                  description: "AI-powered mood-based anime recommendations",
-                  icon: "✨"
-                },
-                {
-                  title: "Community Resonance",
-                  description: "Find your taste twins and compare ratings",
-                  icon: "🎯"
-                },
-                {
-                  title: "Smart Watchlist",
-                  description: "Personalized recommendations based on history",
-                  icon: "📺"
-                },
-                {
-                  title: "Social Guild",
-                  description: "Connect with fellow anime enthusiasts",
-                  icon: "👥"
-                }
-              ].map((feature, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 * i }}
-                  className="p-6 rounded-xl backdrop-blur-md bg-white/5 border border-white/10 hover:border-brand-pink/50 transition-all"
-                >
-                  <div className="text-3xl mb-3">{feature.icon}</div>
-                  <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                  <p className="text-sm text-white/60">{feature.description}</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <FAQ />
-      </div>
-    );
-  }
-
-  // Non-logged-in user homepage (original)
   return (
-    <div className="flex flex-col gap-24 pb-24">
-      <Hero />
-      <TrendingScroll />
-      <Features />
-      <FAQ />
+    <div className="min-h-screen bg-[#0B0F19]">
+      <HeroSection user={user} />
+
+      <div className="max-w-screen-xl mx-auto pt-10">
+        <RecentlyViewed />
+
+        <MediaRow
+          title="Trending Anime 🔥"
+          icon={<Flame size={22} className="text-orange-400" />}
+          items={trendingAnime}
+          type="ANIME"
+          loading={loadingAnime}
+        />
+
+        <MediaRow
+          title="Trending Manga 📖"
+          icon={<BookOpen size={22} className="text-purple-400" />}
+          items={trendingManga}
+          type="MANGA"
+          loading={loadingManga}
+        />
+
+        <RandomPick />
+
+        <MediaRow
+          title="Currently Airing 📡"
+          icon={<Tv size={22} className="text-green-400" />}
+          items={airing}
+          type="ANIME"
+          loading={loadingAiring}
+        />
+
+        <MediaRow
+          title="Top Rated All Time ⭐"
+          icon={<Star size={22} className="text-yellow-400" />}
+          items={topRated}
+          type="ANIME"
+          loading={loadingTop}
+        />
+
+        <GenreExplorer />
+      </div>
+
+      <WhatShouldIWatch />
     </div>
   );
 }
