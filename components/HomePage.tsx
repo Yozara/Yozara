@@ -427,28 +427,21 @@ function RandomPick() {
 // ─── Hero Section ─────────────────────────────────────────────────────────────
 function HeroSection({ user }: { user: User | null }) {
   const router = useRouter();
-  const [bgItem, setBgItem] = useState<MediaItem | null>(null);
   const [currentText, setCurrentText] = useState(0);
   const texts = ["Anime Universe 🌸", "Manga World 📚", "Your Next Obsession ⚡"];
 
   useEffect(() => {
-    getTrendingMedia("ANIME", 1).then((p) => {
-      const items: MediaItem[] = p?.media || [];
-      if (items.length > 0) setBgItem(items[Math.floor(Math.random() * 5)]);
-    });
     const interval = setInterval(() => setCurrentText((t) => (t + 1) % texts.length), 2500);
     return () => clearInterval(interval);
   }, []);
-
-  const bgImg = bgItem?.bannerImage || bgItem?.coverImage?.extraLarge || "/hero-image.jpg";
 
   return (
     <section className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 -z-10">
-        <Image src={bgImg} alt="hero" fill className="object-cover" priority />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0B0F19]/60 via-[#0B0F19]/70 to-[#0B0F19]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19]/80 via-transparent to-[#0B0F19]/80" />
+        <Image src="/bg-home.jpg" alt="hero" fill className="object-cover" priority />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0B0F19]/40 via-[#0B0F19]/60 to-[#0B0F19]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19]/60 via-transparent to-[#0B0F19]/60" />
       </div>
 
       {/* Decorative blobs */}
