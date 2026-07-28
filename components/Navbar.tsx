@@ -109,35 +109,35 @@ export default function Navbar() {
         {/* Anime */}
         <Link href="/anime">
           <motion.div
-            initial={{ x: -56 }}
-            whileHover={{ x: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className={`flex items-center gap-3 pl-3 pr-5 py-3 rounded-r-2xl cursor-pointer shadow-xl ${
-              pathname.startsWith("/anime")
-                ? "bg-brand-pink"
-                : "bg-[#1a1a2e] border border-white/10 hover:bg-brand-pink"
-            }`}
-          >
-            <Tv size={20} className="text-white shrink-0" />
-            <span className="text-white font-bold text-sm whitespace-nowrap">Anime</span>
-          </motion.div>
+  initial={{ x: -90 }}
+  whileHover={{ x: 0 }}
+  transition={{ type: "spring", stiffness: 300, damping: 25 }}
+  className={`flex items-center gap-3 pl-3 pr-5 py-3 rounded-r-2xl cursor-pointer shadow-xl ${
+    pathname.startsWith("/anime")
+      ? "bg-brand-pink"
+      : "bg-[#1a1a2e]/90 border border-white/20 hover:bg-brand-pink"
+  }`}
+>
+  <Tv size={20} className="text-white shrink-0" />
+  <span className="text-white font-bold text-sm whitespace-nowrap">Anime</span>
+</motion.div>
         </Link>
 
         {/* Manga */}
         <Link href="/manga">
           <motion.div
-            initial={{ x: -56 }}
-            whileHover={{ x: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className={`flex items-center gap-3 pl-3 pr-5 py-3 rounded-r-2xl cursor-pointer shadow-xl ${
-              pathname.startsWith("/manga")
-                ? "bg-purple-600"
-                : "bg-[#1a1a2e] border border-white/10 hover:bg-purple-600"
-            }`}
-          >
-            <BookOpen size={20} className="text-white shrink-0" />
-            <span className="text-white font-bold text-sm whitespace-nowrap">Manga</span>
-          </motion.div>
+  initial={{ x: -90 }}
+  whileHover={{ x: 0 }}
+  transition={{ type: "spring", stiffness: 300, damping: 25 }}
+  className={`flex items-center gap-3 pl-3 pr-5 py-3 rounded-r-2xl cursor-pointer shadow-xl ${
+    pathname.startsWith("/manga")
+      ? "bg-purple-600"
+      : "bg-[#1a1a2e]/90 border border-white/20 hover:bg-purple-600"
+  }`}
+>
+  <BookOpen size={20} className="text-white shrink-0" />
+  <span className="text-white font-bold text-sm whitespace-nowrap">Manga</span>
+</motion.div>
         </Link>
       </div>
     </>
