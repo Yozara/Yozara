@@ -12,6 +12,7 @@ import {
   ChevronLeft, Clock, Sparkles, X, Zap
 } from "lucide-react";
 import { getTrendingMedia, searchMedia } from "@/utils/anilist/client";
+import TopAnimeThisWeek from "@/components/TopAnimeThisWeek";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type MediaItem = {
@@ -621,6 +622,8 @@ export default function HomePage() {
           loading={loadingManga}
         />
 
+        <TopAnimeThisWeek />
+
         <RandomPick />
 
         <MediaRow
@@ -632,7 +635,7 @@ export default function HomePage() {
         />
 
         <MediaRow
-          title="Top Rated All Time ⭐"
+          title="Top Rated All Time"
           icon={<Star size={22} className="text-yellow-400" />}
           items={topRated}
           type="ANIME"
