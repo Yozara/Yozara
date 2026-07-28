@@ -439,7 +439,7 @@ function HeroSection({ user }: { user: User | null }) {
     <section className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 -z-10">
-        <Image src="/bg-home.jpg" alt="hero" fill className="object-cover" priority />
+        <Image src="/bg-home.png" alt="hero" fill className="object-cover" priority />
         <div className="absolute inset-0 bg-gradient-to-b from-[#0B0F19]/40 via-[#0B0F19]/60 to-[#0B0F19]" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19]/60 via-transparent to-[#0B0F19]/60" />
       </div>
