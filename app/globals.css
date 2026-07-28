@@ -1,28 +1,23 @@
 @import "tailwindcss";
-
 @theme {
   /* Yozara Custom Palette */
   --color-brand-blue: #1c181f;
   --color-brand-pink: #FF85BB;
   --color-brand-lightpink: #FFCEE3;
   --color-brand-white: #F5F5F5;
-
   --animate-marquee: marquee 40s linear infinite;
-
   @keyframes marquee {
     from { transform: translateY(0); }
     to { transform: translateY(-50%); }
   }
 }
-
 @layer base {
   body {
-    background-color: var(--color-brand-blue);
+    background-color: #0B0F19;
     color: var(--color-brand-white);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 }
-
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
