@@ -8,11 +8,16 @@ import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Flame, Star, Tv, BookOpen, Shuffle, Compass, ChevronRight,
+  Flame, Star, Tv, BookOpen, Shuffle, ChevronRight,
   ChevronLeft, Clock, Sparkles, X, Zap
 } from "lucide-react";
 import { getTrendingMedia, searchMedia } from "@/utils/anilist/client";
 import TopAnimeThisWeek from "@/components/TopAnimeThisWeek";
+import TopMangaThisWeek from "@/components/TopMangaThisWeek";
+import GenreExplorer from "@/components/GenreExplorer";
+import { Rampart_One } from "next/font/google";
+
+const rampart = Rampart_One({ subsets: ["latin"], weight: "400" });
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type MediaItem = {
@@ -191,31 +196,6 @@ function RecentlyViewed() {
               <p className="absolute bottom-2 left-2 right-2 text-white text-[10px] font-semibold line-clamp-2">{item.title}</p>
             </motion.div>
           </Link>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function GenreExplorer() {
-  const router = useRouter();
-  return (
-    <section className="mb-14 px-4 sm:px-6">
-      <h2 className="text-2xl font-extrabold text-white flex items-center gap-2 mb-5">
-        <Compass size={22} className="text-brand-pink" /> Browse by Genre
-      </h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-        {GENRES.map((g) => (
-          <motion.button
-            key={g.name}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => router.push(`/anime?genre=${encodeURIComponent(g.name)}`)}
-            className={`relative rounded-2xl p-4 bg-gradient-to-br ${g.color} flex flex-col items-center justify-center gap-1 h-20 shadow-lg overflow-hidden`}
-          >
-            <span className="text-2xl">{g.emoji}</span>
-            <span className="text-white text-xs font-bold">{g.name}</span>
-          </motion.button>
         ))}
       </div>
     </section>
@@ -435,14 +415,15 @@ function HeroSection({ user }: { user: User | null }) {
     return () => clearInterval(interval);
   }, []);
 
-return (
-    <section className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden">
+  return (
+    <section className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden bg-[#0B0F19]">
       {/* Background */}
       <div className="absolute inset-0 z-0">
-  <Image src="/bg-home.png" alt="hero" fill className="object-cover blur-[2px] scale-105" priority />
-  <div className="absolute inset-0 bg-black/40" />
-  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0B0F19]" />
-</div>
+        <Image src="/bg-home.jpg" alt="hero" fill className="object-cover" priority />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0B0F19]/40 via-[#0B0F19]/60 to-[#0B0F19]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19]/60 via-transparent to-[#0B0F19]/60" />
+      </div>
+
       {/* Decorative blobs */}
       <div className="absolute top-20 left-10 w-64 h-64 bg-brand-pink/20 rounded-full blur-3xl pointer-events-none z-10" />
       <div className="absolute bottom-20 right-10 w-80 h-80 bg-purple-600/20 rounded-full blur-3xl pointer-events-none z-10" />
@@ -461,7 +442,7 @@ return (
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-5xl md:text-7xl font-extrabold text-white mb-4 leading-tight [text-shadow:_2px_2px_0px_#000,_-2px_-2px_0px_#000,_2px_-2px_0px_#000,_-2px_2px_0px_#000]" style={{ fontFamily: "'Zen Tokyo Zoo', 'Kaisei Decol', cursive" }}
+          className={`${rampart.className} text-5xl md:text-7xl font-extrabold text-white mb-4 leading-tight [text-shadow:_2px_2px_0px_#000,_-2px_-2px_0px_#000,_2px_-2px_0px_#000,_-2px_2px_0px_#000]`}
         >
           Discover the
           <br />
@@ -471,7 +452,8 @@ return (
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="text-transparent bg-clip-text bg-gradient-to-r from-brand-pink via-purple-400 to-orange-400 [text-shadow:none]"
+              className="text-transparent bg-clip-text bg-gradient-to-r from-brand-pink via-purple-400 to-orange-400"
+              style={{ WebkitTextStroke: "1.5px black", textShadow: "none" }}
             >
               {texts[currentText]}
             </motion.span>
@@ -546,7 +528,7 @@ return (
         </motion.div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0B0F19] to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0B0F19] to-transparent pointer-events-none z-20" />
     </section>
   );
 }
@@ -599,7 +581,7 @@ export default function HomePage() {
         <RecentlyViewed />
 
         <MediaRow
-          title="Trending Anime 🔥"
+          title="Trending Anime "
           icon={<Flame size={22} className="text-orange-400" />}
           items={trendingAnime}
           type="ANIME"
@@ -607,7 +589,7 @@ export default function HomePage() {
         />
 
         <MediaRow
-          title="Trending Manga 📖"
+          title="Trending Manga "
           icon={<BookOpen size={22} className="text-purple-400" />}
           items={trendingManga}
           type="MANGA"
@@ -616,10 +598,12 @@ export default function HomePage() {
 
         <TopAnimeThisWeek />
 
+        <TopMangaThisWeek />
+
         <RandomPick />
 
         <MediaRow
-          title="Currently Airing 📡"
+          title="Currently Airing "
           icon={<Tv size={22} className="text-green-400" />}
           items={airing}
           type="ANIME"
@@ -634,7 +618,6 @@ export default function HomePage() {
           loading={loadingTop}
         />
 
-        <GenreExplorer />
       </div>
 
       <WhatShouldIWatch />
