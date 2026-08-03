@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getMediaDetails } from "@/utils/anilist/client";
 import { motion } from "framer-motion";
-import { Star, Calendar, Play, ExternalLink, Loader } from "lucide-react";
+import { Star, Calendar, Play, ExternalLink, Loader, Tv } from "lucide-react";
 
 interface AnimeDetailClientProps {
   id: number;
@@ -15,6 +15,7 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
   const [anime, setAnime] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [crunchyrollUrl, setCrunchyrollUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -29,9 +30,21 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
         setLoading(false);
       }
     };
-
     fetchDetails();
   }, [id]);
+
+  useEffect(() => {
+    if (!anime) return;
+    const title = anime.title?.english || anime.title?.romaji;
+    if (!title) return;
+
+    fetch(`/api/crunchyroll?title=${encodeURIComponent(title)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.url) setCrunchyrollUrl(data.url);
+      })
+      .catch(() => {});
+  }, [anime]);
 
   if (loading) {
     return (
@@ -60,6 +73,7 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
   const title = anime.title?.english || anime.title?.romaji || "Untitled";
   const bannerImage = anime.bannerImage;
   const coverImage = anime.coverImage?.extraLarge || anime.coverImage?.large || "/hero-image.jpg";
+
   const formatDate = (date: any) => {
     if (!date) return null;
     return new Date(date.year, date.month - 1, date.day).toLocaleDateString(
@@ -74,17 +88,14 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
       {bannerImage && (
         <div className="fixed inset-0 h-96 -z-10 overflow-hidden">
           <Image src={bannerImage} alt={title} fill className="object-cover" priority />
-          {/* Gradient Overlays */}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0B0F19]" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19] via-transparent to-[#0B0F19]" />
           <div className="absolute inset-0 backdrop-blur-sm" />
         </div>
       )}
 
-      {/* Content */}
       <div className="relative pt-20 pb-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Top Section with Cover and Basic Info */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -94,19 +105,10 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
             {/* Cover Image */}
             <div className="md:col-span-1">
               <div className="relative h-96 rounded-xl overflow-hidden shadow-2xl">
-                <Image
-                  src={coverImage}
-                  alt={title}
-                  fill
-                  className="object-cover"
-                />
-                {/* Rating Badge */}
+                <Image src={coverImage} alt={title} fill className="object-cover" />
                 {anime.averageScore && (
                   <div className="absolute bottom-4 right-4 flex items-center gap-2 px-4 py-2 rounded-lg backdrop-blur-md bg-white/20 border border-white/30">
-                    <Star
-                      size={18}
-                      className="text-brand-pink fill-brand-pink"
-                    />
+                    <Star size={18} className="text-brand-pink fill-brand-pink" />
                     <span className="text-white font-bold text-lg">
                       {anime.averageScore / 10}
                     </span>
@@ -122,9 +124,7 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
               >
-                <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-                  {title}
-                </h1>
+                <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">{title}</h1>
                 {anime.title?.native && (
                   <p className="text-white/60 mb-4">{anime.title.native}</p>
                 )}
@@ -134,25 +134,19 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
                   {anime.episodes && (
                     <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-lg p-3">
                       <p className="text-white/60 text-sm">Episodes</p>
-                      <p className="text-white text-lg font-bold">
-                        {anime.episodes}
-                      </p>
+                      <p className="text-white text-lg font-bold">{anime.episodes}</p>
                     </div>
                   )}
                   {anime.status && (
                     <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-lg p-3">
                       <p className="text-white/60 text-sm">Status</p>
-                      <p className="text-white text-lg font-bold">
-                        {anime.status.replace(/_/g, " ")}
-                      </p>
+                      <p className="text-white text-lg font-bold">{anime.status.replace(/_/g, " ")}</p>
                     </div>
                   )}
                   {anime.format && (
                     <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-lg p-3">
                       <p className="text-white/60 text-sm">Format</p>
-                      <p className="text-white text-lg font-bold">
-                        {anime.format}
-                      </p>
+                      <p className="text-white text-lg font-bold">{anime.format}</p>
                     </div>
                   )}
                 </div>
@@ -187,6 +181,23 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
                       Watch Trailer
                     </motion.a>
                   )}
+
+                  {/* Watch on Crunchyroll */}
+                  <motion.a
+                    href={crunchyrollUrl || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    whileHover={{ scale: crunchyrollUrl ? 1.05 : 1 }}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all font-medium ${
+                      crunchyrollUrl
+                        ? "bg-orange-500 text-white hover:bg-orange-400 cursor-pointer shadow-lg shadow-orange-500/30"
+                        : "bg-orange-500/40 text-white/60 cursor-wait"
+                    }`}
+                  >
+                    <Tv size={18} />
+                    {crunchyrollUrl ? "Watch on Crunchyroll" : "Finding anime..."}
+                  </motion.a>
+
                   {anime.siteUrl && (
                     <motion.a
                       href={anime.siteUrl}
@@ -222,14 +233,13 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
             </motion.div>
           )}
 
-          {/* Studios, Genres, Tags */}
+          {/* Studios, Genres, Country */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
           >
-            {/* Studios */}
             {anime.studios?.nodes && anime.studios.nodes.length > 0 && (
               <div>
                 <h3 className="text-xl font-bold text-white mb-4">Studios</h3>
@@ -249,7 +259,6 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
               </div>
             )}
 
-            {/* Genres */}
             {anime.genres && anime.genres.length > 0 && (
               <div>
                 <h3 className="text-xl font-bold text-white mb-4">Genres</h3>
@@ -266,7 +275,6 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
               </div>
             )}
 
-            {/* Country */}
             {anime.countryOfOrigin && (
               <div>
                 <h3 className="text-xl font-bold text-white mb-4">Country</h3>
@@ -303,9 +311,7 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
                         className="object-cover group-hover:scale-110 transition-transform duration-300"
                       />
                     </div>
-                    <p className="text-white/80 text-xs font-medium line-clamp-2">
-                      {edge.node.name?.full}
-                    </p>
+                    <p className="text-white/80 text-xs font-medium line-clamp-2">{edge.node.name?.full}</p>
                     <p className="text-white/40 text-xs">{edge.role}</p>
                   </motion.div>
                 ))}
@@ -313,7 +319,7 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
             </motion.div>
           )}
 
-          {/* Related Anime */}
+          {/* Related */}
           {anime.relations?.edges && anime.relations.edges.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -328,10 +334,7 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
                     key={edge.node.id}
                     href={`/${edge.node.type === "ANIME" ? "anime" : "manga"}/${edge.node.id}`}
                   >
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      className="group cursor-pointer"
-                    >
+                    <motion.div whileHover={{ scale: 1.05 }} className="group cursor-pointer">
                       <div className="relative h-32 rounded-lg overflow-hidden mb-2 border border-white/10 group-hover:border-brand-pink/50 transition-colors">
                         <Image
                           src={edge.node.coverImage?.large || "/hero-image.jpg"}
@@ -360,32 +363,24 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.6 }}
             >
-              <h2 className="text-2xl font-bold text-white mb-6">
-                Similar Anime
-              </h2>
+              <h2 className="text-2xl font-bold text-white mb-6">Similar Anime</h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {anime.recommendations.nodes.slice(0, 8).map((rec: any) => (
                   <Link
                     key={rec.mediaRecommendation?.id}
                     href={`/${rec.mediaRecommendation?.type === "ANIME" ? "anime" : "manga"}/${rec.mediaRecommendation?.id}`}
                   >
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      className="group cursor-pointer"
-                    >
+                    <motion.div whileHover={{ scale: 1.05 }} className="group cursor-pointer">
                       <div className="relative h-32 rounded-lg overflow-hidden mb-2 border border-white/10 group-hover:border-brand-pink/50 transition-colors">
                         <Image
                           src={rec.mediaRecommendation?.coverImage?.large || "/hero-image.jpg"}
-                          alt={
-                            rec.mediaRecommendation?.title?.romaji
-                          }
+                          alt={rec.mediaRecommendation?.title?.romaji}
                           fill
                           className="object-cover group-hover:scale-110 transition-transform duration-300"
                         />
                       </div>
                       <p className="text-white/80 text-xs font-medium line-clamp-2 group-hover:text-brand-pink transition-colors">
-                        {rec.mediaRecommendation?.title?.english ||
-                          rec.mediaRecommendation?.title?.romaji}
+                        {rec.mediaRecommendation?.title?.english || rec.mediaRecommendation?.title?.romaji}
                       </p>
                     </motion.div>
                   </Link>
