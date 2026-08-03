@@ -86,7 +86,7 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
     <div className="min-h-screen bg-[#0B0F19]">
       {/* Dynamic Background with Banner */}
       {bannerImage && (
-        <div className="fixed inset-0 h-96 -z-10 overflow-hidden">
+        <div className="fixed inset-0 h-96 z-0 overflow-hidden">
           <Image src={bannerImage} alt={title} fill className="object-cover" priority />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0B0F19]" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19] via-transparent to-[#0B0F19]" />
