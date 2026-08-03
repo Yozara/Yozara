@@ -435,20 +435,20 @@ function HeroSection({ user }: { user: User | null }) {
     return () => clearInterval(interval);
   }, []);
 
-  return (
-    <section className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden bg-transparent">
+return (
+    <section className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 -z-10">
+      <div className="absolute inset-0 z-0">
         <Image src="/bg-home.png" alt="hero" fill className="object-cover" priority />
         <div className="absolute inset-0 bg-gradient-to-b from-[#0B0F19]/40 via-[#0B0F19]/60 to-[#0B0F19]" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19]/60 via-transparent to-[#0B0F19]/60" />
       </div>
 
       {/* Decorative blobs */}
-      <div className="absolute top-20 left-10 w-64 h-64 bg-brand-pink/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-20 right-10 w-80 h-80 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-20 left-10 w-64 h-64 bg-brand-pink/20 rounded-full blur-3xl pointer-events-none z-10" />
+      <div className="absolute bottom-20 right-10 w-80 h-80 bg-purple-600/20 rounded-full blur-3xl pointer-events-none z-10" />
 
-      <div className="relative text-center px-4 max-w-4xl mx-auto">
+      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
         {/* Japanese text accent */}
         <motion.p
           initial={{ opacity: 0, y: -10 }}
