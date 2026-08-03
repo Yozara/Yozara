@@ -471,7 +471,7 @@ return (
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="text-transparent bg-clip-text bg-gradient-to-r from-brand-pink via-purple-400 to-orange-400"
+              className="text-transparent bg-clip-text bg-gradient-to-r from-brand-pink via-purple-400 to-orange-400 [text-shadow:none]"
             >
               {texts[currentText]}
             </motion.span>
