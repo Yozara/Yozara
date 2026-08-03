@@ -439,7 +439,7 @@ return (
     <section className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 z-0">
-  <Image src="/bg-home.png" alt="hero" fill className="object-cover blur-sm scale-105" priority />
+  <Image src="/bg-home.png" alt="hero" fill className="object-cover blur-[2px] scale-105" priority />
   <div className="absolute inset-0 bg-black/40" />
   <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0B0F19]" />
 </div>
@@ -461,7 +461,7 @@ return (
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-5xl md:text-7xl font-extrabold text-white mb-4 leading-tight"
+          className="text-5xl md:text-7xl font-extrabold text-white mb-4 leading-tight [text-shadow:_2px_2px_0px_#000,_-2px_-2px_0px_#000,_2px_-2px_0px_#000,_-2px_2px_0px_#000]" style={{ fontFamily: "'Zen Tokyo Zoo', 'Kaisei Decol', cursive" }}
         >
           Discover the
           <br />
