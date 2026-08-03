@@ -20,6 +20,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Tokyo+Zoo&display=swap" rel="stylesheet" />
+</head>
       <body className={`${inter.className} min-h-screen flex flex-col bg-[#0B0F19]`}>
         <Chrome>{children}</Chrome>
       </body>
