@@ -16,7 +16,6 @@ import TopAnimeThisWeek from "@/components/TopAnimeThisWeek";
 import TopMangaThisWeek from "@/components/TopMangaThisWeek";
 import GenreExplorer from "@/components/GenreExplorer";
 import { Rampart_One } from "next/font/google";
-
 const rampart = Rampart_One({ subsets: ["latin"], weight: "400" });
 
 // ─── Types ───────────────────────────────────────────────────────────────────
