@@ -9,12 +9,11 @@ import { User } from "@supabase/supabase-js";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Flame, Star, Tv, BookOpen, Shuffle, ChevronRight,
-  ChevronLeft, Clock, Sparkles, X, Zap
+  ChevronLeft, Clock, Sparkles, X, Zap, Compass
 } from "lucide-react";
 import { getTrendingMedia, searchMedia } from "@/utils/anilist/client";
 import TopAnimeThisWeek from "@/components/TopAnimeThisWeek";
 import TopMangaThisWeek from "@/components/TopMangaThisWeek";
-import GenreExplorer from "@/components/GenreExplorer";
 import { Rampart_One } from "next/font/google";
 const rampart = Rampart_One({ subsets: ["latin"], weight: "400" });
 
@@ -35,19 +34,6 @@ type MediaItem = {
 };
 
 // ─── Genre config ─────────────────────────────────────────────────────────────
-const GENRES = [
-  { name: "Action", emoji: "⚔️", color: "from-red-500 to-orange-500" },
-  { name: "Romance", emoji: "💕", color: "from-pink-500 to-rose-400" },
-  { name: "Comedy", emoji: "😂", color: "from-yellow-400 to-amber-400" },
-  { name: "Horror", emoji: "👻", color: "from-purple-800 to-gray-900" },
-  { name: "Fantasy", emoji: "🧙", color: "from-violet-500 to-purple-600" },
-  { name: "Sci-Fi", emoji: "🚀", color: "from-cyan-500 to-blue-500" },
-  { name: "Slice of Life", emoji: "🌸", color: "from-green-400 to-teal-400" },
-  { name: "Mystery", emoji: "🔍", color: "from-indigo-600 to-blue-800" },
-  { name: "Sports", emoji: "⚽", color: "from-emerald-400 to-green-600" },
-  { name: "Psychological", emoji: "🧠", color: "from-fuchsia-600 to-pink-800" },
-];
-
 const QUIZ_QUESTIONS = [
   {
     q: "What's your mood rn? 🎭",
@@ -75,7 +61,6 @@ const QUIZ_GENRE_MAP: Record<string, string[]> = {
 };
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
-
 function MediaRow({
   title, icon, items, type, loading,
 }: {
@@ -284,7 +269,7 @@ function WhatShouldIWatch() {
                     <div className="w-full bg-white/10 rounded-full h-1.5 mb-4">
                       <div
                         className="bg-brand-pink h-1.5 rounded-full transition-all"
-                        style={{ width: `${((step) / QUIZ_QUESTIONS.length) * 100}%` }}
+                        style={{ width: `${((step+1) / QUIZ_QUESTIONS.length) * 100}%` }}
                       />
                     </div>
                     <h3 className="text-white text-xl font-extrabold">{QUIZ_QUESTIONS[step].q}</h3>
@@ -554,10 +539,13 @@ export default function HomePage() {
 
   // Fetch all data
   useEffect(() => {
-    getTrendingMedia("ANIME", 1).then((p) => {
-      setTrendingAnime((p?.media || []).slice(0, 16));
-      setLoadingAnime(false);
-    });
+try {
+  const data = await getTrendingMedia("ANIME", 1);
+} catch (err) {
+  console.error(err);
+} finally {
+  setLoadingAnime(false);
+}
     getTrendingMedia("MANGA", 1).then((p) => {
       setTrendingManga((p?.media || []).slice(0, 16));
       setLoadingManga(false);
