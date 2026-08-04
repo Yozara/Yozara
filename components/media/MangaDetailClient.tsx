@@ -10,7 +10,6 @@ import { Star, Calendar, ExternalLink, Loader, BookOpen } from "lucide-react";
 interface MangaDetailClientProps {
   id: number;
 }
-
 export function MangaDetailClient({ id }: MangaDetailClientProps) {
   const [manga, setManga] = useState<any>(null);
   const [loading, setLoading] = useState(true);
