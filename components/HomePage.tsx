@@ -392,13 +392,13 @@ function HeroSection({ user }: { user: User | null }) {
   }, []);
 
   return (
-    <section className="relative w-full min-h-[85vh] flex items-center justify-center">
-  {/* Background */}
-  <div className="absolute inset-0 overflow-hidden">
-    <Image src="/bg-home.jpg" alt="hero" fill className="object-cover blur-[2px] scale-105" priority />
-    <div className="absolute inset-0 bg-black/40" />
-    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0B0F19]" />
-  </div>
+    <section className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden bg-[#0B0F19]">
+      {/* Background */}
+      <div className="absolute inset-0 z-0">
+        <Image src="/bg-home.jpg" alt="hero" fill className="object-cover blur-[2px] scale-105" priority />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0B0F19]" />
+      </div>
 
       {/* Decorative blobs */}
       <div className="absolute top-20 left-10 w-64 h-64 bg-brand-pink/20 rounded-full blur-3xl pointer-events-none z-10" />
