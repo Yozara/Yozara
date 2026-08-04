@@ -18,7 +18,6 @@ type MediaItem = {
   genres?: string[];
   description?: string;
 };
-
 export default function TopMangaThisWeek() {
   const [items, setItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
