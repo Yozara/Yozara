@@ -102,7 +102,7 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
             transition={{ duration: 0.5 }}
             className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12"
           >
-            {/* Cover Image */}
+            {/* Cover Image */ }
             <div className="md:col-span-1">
               <div className="relative h-96 rounded-xl overflow-hidden shadow-2xl">
                 <Image src={coverImage} alt={title} fill className="object-cover" />
