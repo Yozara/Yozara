@@ -15,9 +15,10 @@ import { getTrendingMedia, searchMedia } from "@/utils/anilist/client";
 import TopAnimeThisWeek from "@/components/TopAnimeThisWeek";
 import TopMangaThisWeek from "@/components/TopMangaThisWeek";
 import { Rampart_One } from "next/font/google";
+
 const rampart = Rampart_One({ subsets: ["latin"], weight: "400" });
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 type MediaItem = {
   id: number;
   type?: "ANIME" | "MANGA";
@@ -33,7 +34,7 @@ type MediaItem = {
   chapters?: number;
 };
 
-// ─── Genre config ─────────────────────────────────────────────────────────────
+// ─── Quiz config ──────────────────────────────────────────────────────────────
 const QUIZ_QUESTIONS = [
   {
     q: "What's your mood rn? 🎭",
@@ -60,7 +61,7 @@ const QUIZ_GENRE_MAP: Record<string, string[]> = {
   "Dark & Deep 🌑": ["Horror", "Mystery"],
 };
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// ─── MediaRow ─────────────────────────────────────────────────────────────────
 function MediaRow({
   title, icon, items, type, loading,
 }: {
@@ -101,20 +102,13 @@ function MediaRow({
         >
           {loading
             ? Array.from({ length: 8 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="shrink-0 w-[160px] h-[240px] rounded-2xl bg-white/5 animate-pulse snap-start"
-                />
+                <div key={i} className="shrink-0 w-[160px] h-[240px] rounded-2xl bg-white/5 animate-pulse snap-start" />
               ))
             : items.map((item) => {
                 const title = item.title?.english || item.title?.romaji || "Untitled";
                 const img = item.coverImage?.extraLarge || item.coverImage?.large || "/hero-image.jpg";
                 return (
-                  <Link
-                    key={item.id}
-                    href={`/${type.toLowerCase()}/${item.id}`}
-                    className="shrink-0 snap-start"
-                  >
+                  <Link key={item.id} href={`/${type.toLowerCase()}/${item.id}`} className="shrink-0 snap-start">
                     <motion.div
                       whileHover={{ scale: 1.05, y: -6 }}
                       className="relative w-[160px] h-[240px] rounded-2xl overflow-hidden border border-white/10 hover:border-brand-pink/60 transition-colors cursor-pointer"
@@ -149,6 +143,7 @@ function MediaRow({
   );
 }
 
+// ─── RecentlyViewed ───────────────────────────────────────────────────────────
 function RecentlyViewed() {
   const [items, setItems] = useState<{ id: number; type: string; title: string; image: string }[]>([]);
 
@@ -186,6 +181,7 @@ function RecentlyViewed() {
   );
 }
 
+// ─── WhatShouldIWatch ─────────────────────────────────────────────────────────
 function WhatShouldIWatch() {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
@@ -200,7 +196,6 @@ function WhatShouldIWatch() {
     if (step < QUIZ_QUESTIONS.length - 1) {
       setStep(step + 1);
     } else {
-      // Find genre from answers
       setLoading(true);
       const genres = newAnswers.flatMap((a) => QUIZ_GENRE_MAP[a] || []);
       const genre = genres[0] || "Action";
@@ -231,7 +226,6 @@ function WhatShouldIWatch() {
 
   return (
     <>
-      {/* Floating Button */}
       <motion.button
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
@@ -241,7 +235,6 @@ function WhatShouldIWatch() {
         <Sparkles size={18} /> What should I watch?
       </motion.button>
 
-      {/* Modal */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -269,7 +262,7 @@ function WhatShouldIWatch() {
                     <div className="w-full bg-white/10 rounded-full h-1.5 mb-4">
                       <div
                         className="bg-brand-pink h-1.5 rounded-full transition-all"
-                        style={{ width: `${((step+1) / QUIZ_QUESTIONS.length) * 100}%` }}
+                        style={{ width: `${((step + 1) / QUIZ_QUESTIONS.length) * 100}%` }}
                       />
                     </div>
                     <h3 className="text-white text-xl font-extrabold">{QUIZ_QUESTIONS[step].q}</h3>
@@ -343,6 +336,7 @@ function WhatShouldIWatch() {
   );
 }
 
+// ─── RandomPick ───────────────────────────────────────────────────────────────
 function RandomPick() {
   const router = useRouter();
   const [spinning, setSpinning] = useState(false);
@@ -388,11 +382,10 @@ function RandomPick() {
   );
 }
 
-// ─── Hero Section ─────────────────────────────────────────────────────────────
+// ─── HeroSection ──────────────────────────────────────────────────────────────
 function HeroSection({ user }: { user: User | null }) {
-  const router = useRouter();
   const [currentText, setCurrentText] = useState(0);
-  const texts = ["Anime Universe ", "Manga World ", "Your animanga niche"];
+  const texts = ["Anime Universe 🌸", "Manga World 📚", "Your animanga niche ⚡"];
 
   useEffect(() => {
     const interval = setInterval(() => setCurrentText((t) => (t + 1) % texts.length), 2500);
@@ -400,12 +393,12 @@ function HeroSection({ user }: { user: User | null }) {
   }, []);
 
   return (
-    <section className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden bg-[#0B0F19]">
+    <section className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 z-0">
-        <Image src="/bg-home.jpg" alt="hero" fill className="object-cover" priority />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0B0F19]/40 via-[#0B0F19]/60 to-[#0B0F19]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0B0F19]/60 via-transparent to-[#0B0F19]/60" />
+        <Image src="/bg-home.jpg" alt="hero" fill className="object-cover blur-[2px] scale-105" priority />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0B0F19]" />
       </div>
 
       {/* Decorative blobs */}
@@ -413,7 +406,6 @@ function HeroSection({ user }: { user: User | null }) {
       <div className="absolute bottom-20 right-10 w-80 h-80 bg-purple-600/20 rounded-full blur-3xl pointer-events-none z-10" />
 
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-        {/* Japanese text accent */}
         <motion.p
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -492,7 +484,6 @@ function HeroSection({ user }: { user: User | null }) {
           )}
         </motion.div>
 
-        {/* Stats row */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -529,7 +520,6 @@ export default function HomePage() {
   const [loadingTop, setLoadingTop] = useState(true);
   const [loadingAiring, setLoadingAiring] = useState(true);
 
-  // Auth
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => setUser(user ?? null));
@@ -537,27 +527,26 @@ export default function HomePage() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Fetch all data
   useEffect(() => {
-try {
-  const data = await getTrendingMedia("ANIME", 1);
-} catch (err) {
-  console.error(err);
-} finally {
-  setLoadingAnime(false);
-}
+    getTrendingMedia("ANIME", 1).then((p) => {
+      setTrendingAnime((p?.media || []).slice(0, 16));
+      setLoadingAnime(false);
+    }).catch(() => setLoadingAnime(false));
+
     getTrendingMedia("MANGA", 1).then((p) => {
       setTrendingManga((p?.media || []).slice(0, 16));
       setLoadingManga(false);
-    });
+    }).catch(() => setLoadingManga(false));
+
     searchMedia("ANIME", { sort: "SCORE_DESC", page: 1 }).then((d) => {
       setTopRated((d?.Page?.media || []).slice(0, 16));
       setLoadingTop(false);
-    });
+    }).catch(() => setLoadingTop(false));
+
     searchMedia("ANIME", { status: "RELEASING", sort: "POPULARITY_DESC", page: 1 }).then((d) => {
       setAiring((d?.Page?.media || []).slice(0, 16));
       setLoadingAiring(false);
-    });
+    }).catch(() => setLoadingAiring(false));
   }, []);
 
   return (
@@ -576,7 +565,7 @@ try {
         />
 
         <MediaRow
-          title="Trending Manga "
+          title="Trending Manga 📖"
           icon={<BookOpen size={22} className="text-purple-400" />}
           items={trendingManga}
           type="MANGA"
@@ -590,7 +579,7 @@ try {
         <RandomPick />
 
         <MediaRow
-          title="Currently Airing "
+          title="Currently Airing"
           icon={<Tv size={22} className="text-green-400" />}
           items={airing}
           type="ANIME"
@@ -604,7 +593,6 @@ try {
           type="ANIME"
           loading={loadingTop}
         />
-
       </div>
 
       <WhatShouldIWatch />
