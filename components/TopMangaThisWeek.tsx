@@ -5,7 +5,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Star, TrendingUp } from "lucide-react";
 import { getTrendingMedia } from "@/utils/anilist/client";
-
 type MediaItem = {
   id: number;
   title?: { romaji?: string; english?: string };
