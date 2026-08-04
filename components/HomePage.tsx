@@ -408,7 +408,7 @@ function RandomPick() {
 function HeroSection({ user }: { user: User | null }) {
   const router = useRouter();
   const [currentText, setCurrentText] = useState(0);
-  const texts = ["Anime Universe 🌸", "Manga World 📚", "Your Next Obsession ⚡"];
+  const texts = ["Anime Universe ", "Manga World ", "Your animanga niche"];
 
   useEffect(() => {
     const interval = setInterval(() => setCurrentText((t) => (t + 1) % texts.length), 2500);
