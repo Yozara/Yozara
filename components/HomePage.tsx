@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -392,7 +393,7 @@ function HeroSection({ user }: { user: User | null }) {
   }, []);
 
   return (
-    <section className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden bg-[#0B0F19]">
+    <section className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 z-0">
         <Image src="/bg-home.jpg" alt="hero" fill className="object-cover blur-[2px] scale-105" priority />
@@ -564,7 +565,7 @@ export default function HomePage() {
         />
 
         <MediaRow
-          title="Trending Manga 📖"
+          title="Trending Manga "
           icon={<BookOpen size={22} className="text-purple-400" />}
           items={trendingManga}
           type="MANGA"
@@ -578,7 +579,7 @@ export default function HomePage() {
         <RandomPick />
 
         <MediaRow
-          title="Currently Airing"
+          title="Currently Airing "
           icon={<Tv size={22} className="text-green-400" />}
           items={airing}
           type="ANIME"
