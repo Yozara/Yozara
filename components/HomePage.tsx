@@ -1,5 +1,5 @@
 "use client";
-
+import FortuneCard from "@/components/FortuneCard";
 import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -575,7 +575,7 @@ export default function HomePage() {
 
         <TopMangaThisWeek />
 
-        <RandomPick />
+        <FortuneCard />
 
         <MediaRow
           title="Currently Airing "
