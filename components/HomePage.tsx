@@ -335,26 +335,7 @@ function WhatShouldIWatch() {
   );
 }
 
-// ─── RandomPick ───────────────────────────────────────────────────────────────
-function RandomPick() {
-  const router = useRouter();
-  const [spinning, setSpinning] = useState(false);
 
-  const handleRandom = async () => {
-    setSpinning(true);
-    try {
-      const page = Math.floor(Math.random() * 5) + 1;
-      const type = Math.random() > 0.5 ? "ANIME" : "MANGA";
-      const data = await searchMedia(type, { sort: "POPULARITY_DESC", page });
-      const items: MediaItem[] = data?.Page?.media || [];
-      if (items.length > 0) {
-        const pick = items[Math.floor(Math.random() * items.length)];
-        router.push(`/${type.toLowerCase()}/${pick.id}`);
-      }
-    } finally {
-      setSpinning(false);
-    }
-  };
 
   return (
     <section className="mb-14 px-4 sm:px-6">
