@@ -8,7 +8,7 @@ import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Flame, Star, Tv, BookOpen, Shuffle, ChevronRight,
+  Flame, Star, Tv, BookOpen, ChevronRight,
   ChevronLeft, Clock, Sparkles, X, Zap, Compass
 } from "lucide-react";
 import { getTrendingMedia, searchMedia } from "@/utils/anilist/client";
@@ -334,34 +334,6 @@ function WhatShouldIWatch() {
     </>
   );
 }
-
-
-
-  return (
-    <section className="mb-14 px-4 sm:px-6">
-      <motion.button
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={handleRandom}
-        disabled={spinning}
-        className="w-full rounded-3xl bg-gradient-to-r from-purple-600 via-brand-pink to-orange-400 p-[2px]"
-      >
-        <div className="w-full rounded-3xl bg-[#0B0F19] flex items-center justify-center gap-3 py-5 px-6">
-          <motion.div
-            animate={spinning ? { rotate: 360 } : { rotate: 0 }}
-            transition={spinning ? { repeat: Infinity, duration: 0.6, ease: "linear" } : {}}
-          >
-            <Shuffle size={24} className="text-brand-pink" />
-          </motion.div>
-          <span className="text-white font-extrabold text-lg">
-            {spinning ? "Finding something for you..." : "🎲 Surprise Me! Random Anime or Manga"}
-          </span>
-        </div>
-      </motion.button>
-    </section>
-  );
-}
-
 // ─── HeroSection ──────────────────────────────────────────────────────────────
 function HeroSection({ user }: { user: User | null }) {
   const [currentText, setCurrentText] = useState(0);
