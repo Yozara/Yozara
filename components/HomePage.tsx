@@ -427,8 +427,8 @@ function HeroSection({ user }: { user: User | null }) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="text-transparent bg-clip-text bg-gradient-to-r from-brand-pink via-purple-400 to-orange-400"
-              style={{ WebkitTextStroke: "1.5px black", textShadow: "none" }}
+              className="text-white"
+style={{ textShadow: "2px 2px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, -2px 2px 0px #000" }}
             >
               {texts[currentText]}
             </motion.span>
