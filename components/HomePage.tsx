@@ -14,9 +14,8 @@ import {
 import { getTrendingMedia, searchMedia } from "@/utils/anilist/client";
 import TopAnimeThisWeek from "@/components/TopAnimeThisWeek";
 import TopMangaThisWeek from "@/components/TopMangaThisWeek";
-import { Rampart_One } from "next/font/google";
-
-const rampart = Rampart_One({ subsets: ["latin"], weight: "400" });
+import { Zen_Tokyo_Zoo } from "next/font/google";
+const rampart = Zen_Tokyo_Zoo({ subsets: ["latin"], weight: "400" });
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type MediaItem = {
