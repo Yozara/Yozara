@@ -192,19 +192,6 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-3">
-                  {manga.siteUrl && (
-                    <motion.a
-                      href={manga.siteUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      whileHover={{ scale: 1.05 }}
-                      className="flex items-center gap-2 px-6 py-3 rounded-lg bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all font-medium"
-                    >
-                      <ExternalLink size={18} />
-                      AniList
-                    </motion.a>
-                  )}
-
                   <motion.a
                     href={mangaDexUrl || "#"}
                     target="_blank"
