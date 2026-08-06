@@ -35,9 +35,9 @@ export default function FortuneCard() {
 
     try {
       const page = Math.floor(Math.random() * 5) + 1;
-      const type = Math.random() > 0.5 ? "ANIME" : "MANGA";
-      setResultType(type as "ANIME" | "MANGA");
-      const data = await searchMedia(type, { sort: "POPULARITY_DESC", page });
+      const type: "ANIME" | "MANGA" = Math.random() > 0.5 ? "ANIME" : "MANGA";
+setResultType(type);
+const data = await searchMedia(type, { sort: "POPULARITY_DESC", page });
       const items: MediaItem[] = data?.Page?.media || [];
       const pick = items[Math.floor(Math.random() * items.length)];
       setResult(pick || null);
