@@ -17,7 +17,6 @@ type MediaItem = {
   episodes?: number;
   chapters?: number;
 };
-
 const CARD_BACK_SYMBOLS = ["⛩️", "🌸", "⚡", "🗡️", "🐉", "🌙", "👁️", "🔮"];
 
 export default function FortuneCard() {
