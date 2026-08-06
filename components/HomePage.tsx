@@ -15,9 +15,9 @@ import { getTrendingMedia, searchMedia } from "@/utils/anilist/client";
 import TopAnimeThisWeek from "@/components/TopAnimeThisWeek";
 import TopMangaThisWeek from "@/components/TopMangaThisWeek";
 import { Zen_Tokyo_Zoo } from "next/font/google";
+
 const rampart = Zen_Tokyo_Zoo({ subsets: ["latin"], weight: "400" });
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 type MediaItem = {
   id: number;
   type?: "ANIME" | "MANGA";
@@ -33,7 +33,6 @@ type MediaItem = {
   chapters?: number;
 };
 
-// ─── Quiz config ──────────────────────────────────────────────────────────────
 const QUIZ_QUESTIONS = [
   {
     q: "What's your mood rn? 🎭",
@@ -60,7 +59,6 @@ const QUIZ_GENRE_MAP: Record<string, string[]> = {
   "Dark & Deep 🌑": ["Horror", "Mystery"],
 };
 
-// ─── MediaRow ─────────────────────────────────────────────────────────────────
 function MediaRow({
   title, icon, items, type, loading,
 }: {
@@ -142,7 +140,6 @@ function MediaRow({
   );
 }
 
-// ─── RecentlyViewed ───────────────────────────────────────────────────────────
 function RecentlyViewed() {
   const [items, setItems] = useState<{ id: number; type: string; title: string; image: string }[]>([]);
 
@@ -180,7 +177,6 @@ function RecentlyViewed() {
   );
 }
 
-// ─── WhatShouldIWatch ─────────────────────────────────────────────────────────
 function WhatShouldIWatch() {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
@@ -334,7 +330,7 @@ function WhatShouldIWatch() {
     </>
   );
 }
-// ─── HeroSection ──────────────────────────────────────────────────────────────
+
 function HeroSection({ user }: { user: User | null }) {
   const [currentText, setCurrentText] = useState(0);
   const texts = ["Anime Universe", "Manga World", "Your animanga niche"];
@@ -346,14 +342,12 @@ function HeroSection({ user }: { user: User | null }) {
 
   return (
     <section className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 z-0">
-        <Image src="/bg-home.png" alt="hero" fill className="object-cover blur-[2px] scale-105" priority />
+      <div className="absolute inset-0 overflow-hidden">
+        <img src="/bg-home.png" alt="hero" className="w-full h-full object-cover" style={{ filter: "blur(2px)", transform: "scale(1.05)" }} />
         <div className="absolute inset-0 bg-black/40" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0B0F19]" />
       </div>
 
-      {/* Decorative blobs */}
       <div className="absolute top-20 left-10 w-64 h-64 bg-brand-pink/20 rounded-full blur-3xl pointer-events-none z-10" />
       <div className="absolute bottom-20 right-10 w-80 h-80 bg-purple-600/20 rounded-full blur-3xl pointer-events-none z-10" />
 
@@ -381,7 +375,7 @@ function HeroSection({ user }: { user: User | null }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               className="text-white"
-style={{ textShadow: "2px 2px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, -2px 2px 0px #000" }}
+              style={{ textShadow: "2px 2px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, -2px 2px 0px #000" }}
             >
               {texts[currentText]}
             </motion.span>
@@ -460,7 +454,6 @@ style={{ textShadow: "2px 2px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, -
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const [user, setUser] = useState<User | null>(null);
   const [trendingAnime, setTrendingAnime] = useState<MediaItem[]>([]);
