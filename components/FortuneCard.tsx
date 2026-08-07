@@ -157,6 +157,7 @@ export default function FortuneCard() {
 
           {/* Main card */}
           <motion.div
+            className="absolute"
             style={{ width: 180, height: 260, zIndex: 10, cursor: phase === "idle" ? "pointer" : "default" }}
             animate={phase === "shuffling" ? { x: [0, 35, -35, 18, -18, 0], rotate: [0, 8, -8, 4, -4, 0] } : {}}
             transition={phase === "shuffling" ? { duration: 1.1, repeat: Infinity, ease: "easeInOut" } : {}}
