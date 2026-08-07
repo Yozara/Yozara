@@ -6,7 +6,6 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { searchMedia } from "@/utils/anilist/client";
 import { Sparkles, RefreshCw } from "lucide-react";
-
 type MediaItem = {
   id: number;
   type?: string;
