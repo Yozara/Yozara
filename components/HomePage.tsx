@@ -522,7 +522,7 @@ export default function HomePage() {
 
         <TopMangaThisWeek />
 
-        <FortuneCard />
+        
 
         <MediaRow
           title="Currently Airing "
