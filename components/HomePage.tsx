@@ -501,7 +501,7 @@ export default function HomePage() {
 
       <div className="max-w-screen-xl mx-auto pt-10">
         <RecentlyViewed />
-
+        <FortuneCard />
         <MediaRow
           title="Trending Anime "
           icon={<Flame size={22} className="text-orange-400" />}
