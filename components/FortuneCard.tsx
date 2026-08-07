@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,13 +9,10 @@ import { Sparkles, RefreshCw } from "lucide-react";
 
 type MediaItem = {
   id: number;
-  type?: string;
   title?: { romaji?: string; english?: string };
   coverImage?: { large?: string; extraLarge?: string };
   genres?: string[];
   averageScore?: number;
-  episodes?: number;
-  chapters?: number;
 };
 
 const STARS = Array.from({ length: 20 }, (_, i) => ({
@@ -30,117 +27,73 @@ const STARS = Array.from({ length: 20 }, (_, i) => ({
 const MOONS = ["🌙", "🌟", "⭐", "✨", "🌙", "⭐", "🌟", "✨"];
 
 export default function FortuneCard() {
-  const [phase, setPhase] = useState<"idle" | "shuffling" | "loading" | "flipping" | "revealed">("idle");
+  const [phase, setPhase] = useState<"idle" | "shuffling" | "revealed">("idle");
   const [result, setResult] = useState<MediaItem | null>(null);
   const [resultType, setResultType] = useState<"ANIME" | "MANGA">("ANIME");
-  const [flipped, setFlipped] = useState(false);
   const [shuffleStep, setShuffleStep] = useState(0);
-
-  // Use refs to coordinate between shuffle interval and fetch
-  const fetchDone = useRef(false);
-  const shuffleDone = useRef(false);
-  const fetchedResult = useRef<MediaItem | null>(null);
-  const fetchedType = useRef<"ANIME" | "MANGA">("ANIME");
-
-  const img = result?.coverImage?.extraLarge || result?.coverImage?.large || "/hero-image.jpg";
-  const title = result?.title?.english || result?.title?.romaji || "???";
-
-  const startReveal = () => {
-    // Preload image then flip
-    const src = fetchedResult.current?.coverImage?.extraLarge || fetchedResult.current?.coverImage?.large;
-    const proceed = () => {
-      setResult(fetchedResult.current);
-      setResultType(fetchedType.current);
-      setPhase("loading");
-      setTimeout(() => {
-        setPhase("flipping");
-        setTimeout(() => {
-          setFlipped(true);
-          setPhase("revealed");
-        }, 600);
-      }, 1000);
-    };
-
-    if (!src) {
-      proceed();
-      return;
-    }
-
-    const img = new window.Image();
-    img.onload = proceed;
-    img.onerror = proceed;
-    img.src = src;
-  };
 
   const pickCard = async () => {
     if (phase !== "idle") return;
-
-    // Reset refs
-    fetchDone.current = false;
-    shuffleDone.current = false;
-    fetchedResult.current = null;
-
     setPhase("shuffling");
-    setFlipped(false);
     setResult(null);
     setShuffleStep(0);
 
-    // Shuffle animation — 6 steps × 200ms = 1.2s
+    // Run shuffle animation for 1.5s
     let step = 0;
-    const shuffleInterval = setInterval(() => {
+    const interval = setInterval(() => {
       step++;
-      setShuffleStep(step);
-      if (step >= 6) {
-        clearInterval(shuffleInterval);
-        shuffleDone.current = true;
-        if (fetchDone.current) startReveal();
-      }
-    }, 200);
+      setShuffleStep(step % 6);
+      if (step >= 8) clearInterval(interval);
+    }, 180);
 
-    // Fetch
+    // Fetch data
     try {
-      const page = Math.floor(Math.random() * 5) + 1;
       const type: "ANIME" | "MANGA" = Math.random() > 0.5 ? "ANIME" : "MANGA";
-      fetchedType.current = type;
+      const page = Math.floor(Math.random() * 5) + 1;
+      setResultType(type);
       const data = await getTrendingMedia(type, page);
       const items: MediaItem[] = data?.media || [];
       const pick = items[Math.floor(Math.random() * items.length)] || null;
-      fetchedResult.current = pick;
-      fetchDone.current = true;
-      if (shuffleDone.current) startReveal();
+
+      // Wait for shuffle to finish (at least 1.5s total)
+      setTimeout(() => {
+        clearInterval(interval);
+        setResult(pick);
+        setTimeout(() => {
+          setPhase("revealed");
+        }, 800);
+      }, 1500);
     } catch {
+      clearInterval(interval);
       setPhase("idle");
     }
   };
 
   const reset = () => {
     setPhase("idle");
-    setFlipped(false);
     setResult(null);
     setShuffleStep(0);
-    fetchDone.current = false;
-    shuffleDone.current = false;
-    fetchedResult.current = null;
   };
 
-  const getShuffleTransform = (cardIndex: number) => {
+  const getShuffleTransform = (i: number) => {
     const offsets = [
-      { x: -60, rotate: -15 },
-      { x: 60, rotate: 15 },
-      { x: -30, rotate: -8 },
-      { x: 30, rotate: 8 },
-      { x: -15, rotate: -4 },
+      { x: -50, rotate: -12 },
+      { x: 50, rotate: 12 },
+      { x: -25, rotate: -6 },
+      { x: 25, rotate: 6 },
+      { x: -10, rotate: -3 },
       { x: 0, rotate: 0 },
     ];
-    const step = (shuffleStep + cardIndex) % offsets.length;
-    return offsets[step];
+    return offsets[(shuffleStep + i) % offsets.length];
   };
 
-  const isGlowing = phase === "loading" || phase === "flipping" || phase === "revealed";
+  const img = result?.coverImage?.extraLarge || result?.coverImage?.large || "/hero-image.jpg";
+  const title = result?.title?.english || result?.title?.romaji || "???";
+  const isGlowing = phase === "revealed";
 
   return (
     <section className="mb-14 px-4 sm:px-6 relative overflow-hidden">
-      {/* Background stars */}
+      {/* Stars */}
       <div className="absolute inset-0 pointer-events-none">
         {STARS.map((s) => (
           <motion.div
@@ -179,23 +132,23 @@ export default function FortuneCard() {
       <div className="flex flex-col items-center gap-6 relative z-10">
         <div className="relative flex items-center justify-center w-full h-[320px]">
 
-          {/* Deck stack */}
-          {(phase === "idle" || phase === "shuffling") && (
+          {/* Deck stack cards */}
+          {phase !== "revealed" && (
             <>
               {[3, 2, 1].map((i) => {
-                const shuffle = phase === "shuffling" ? getShuffleTransform(i) : { x: 0, rotate: (i - 2) * 4 };
+                const t = phase === "shuffling" ? getShuffleTransform(i) : { x: (i - 2) * 6, rotate: (i - 2) * 4 };
                 return (
                   <motion.div
                     key={i}
-                    className="absolute rounded-2xl border border-yellow-500/30 shadow-lg"
+                    className="absolute rounded-2xl border border-yellow-500/40"
                     style={{
                       width: 180,
                       height: 260,
                       background: "linear-gradient(135deg, #7c5a00 0%, #f5c518 40%, #c8960c 60%, #7c5a00 100%)",
                       zIndex: i,
                     }}
-                    animate={{ x: shuffle.x, rotate: shuffle.rotate, y: i * 3 }}
-                    transition={{ duration: 0.15, ease: "easeInOut" }}
+                    animate={{ x: t.x, rotate: t.rotate, y: i * 3 }}
+                    transition={{ duration: 0.15 }}
                   />
                 );
               })}
@@ -204,77 +157,43 @@ export default function FortuneCard() {
 
           {/* Main card */}
           <motion.div
-            className="relative"
-            style={{
-              width: 180,
-              height: 260,
-              zIndex: 10,
-              cursor: phase === "idle" ? "pointer" : "default",
-            }}
-            animate={
-              phase === "shuffling"
-                ? { x: [0, 40, -40, 20, -20, 0], rotate: [0, 10, -10, 5, -5, 0] }
-                : phase === "flipping"
-                ? { rotateY: 90 }
-                : {}
-            }
-            transition={
-              phase === "shuffling"
-                ? { duration: 1.2, ease: "easeInOut" }
-                : phase === "flipping"
-                ? { duration: 0.3 }
-                : {}
-            }
+            style={{ width: 180, height: 260, zIndex: 10, cursor: phase === "idle" ? "pointer" : "default" }}
+            animate={phase === "shuffling" ? { x: [0, 35, -35, 18, -18, 0], rotate: [0, 8, -8, 4, -4, 0] } : {}}
+            transition={phase === "shuffling" ? { duration: 1.1, repeat: Infinity, ease: "easeInOut" } : {}}
             onClick={phase === "idle" ? pickCard : undefined}
           >
             <AnimatePresence mode="wait">
-              {!flipped ? (
+              {phase !== "revealed" ? (
                 <motion.div
                   key="back"
-                  className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-yellow-400/60 shadow-2xl flex flex-col items-center justify-center gap-3"
+                  className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-yellow-400/60 flex flex-col items-center justify-center gap-3"
                   style={{
                     background: "linear-gradient(135deg, #7c5a00 0%, #f5c518 40%, #c8960c 60%, #7c5a00 100%)",
+                    boxShadow: isGlowing ? "0 0 40px 15px rgba(245,197,24,0.5)" : "0 8px 32px rgba(0,0,0,0.4)",
                   }}
                   initial={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  animate={isGlowing ? {
-                    boxShadow: [
-                      "0 0 20px 5px rgba(245,197,24,0.3)",
-                      "0 0 50px 20px rgba(245,197,24,0.7)",
-                      "0 0 20px 5px rgba(245,197,24,0.3)"
-                    ]
-                  } : {}}
-                  transition={isGlowing ? { repeat: Infinity, duration: 1.5 } : {}}
+                  exit={{ opacity: 0, rotateY: 90 }}
+                  transition={{ duration: 0.4 }}
                 >
                   <div className="absolute inset-2 rounded-xl border border-yellow-200/60" />
                   <div className="absolute inset-3 rounded-lg border border-yellow-100/30" />
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} className="absolute text-yellow-900/30 text-xs"
+                      style={{ top: `${10 + i * 12}%`, left: `${8 + (i % 3) * 35}%` }}>✦</div>
+                  ))}
 
-                  {/* Star pattern */}
-                  <div className="absolute inset-0">
-                    {Array.from({ length: 8 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="absolute text-yellow-900/30 text-xs"
-                        style={{ top: `${10 + i * 12}%`, left: `${8 + (i % 3) * 35}%` }}
-                      >
-                        ✦
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Show card contents only when idle */}
                   {phase === "idle" && (
                     <>
                       <span className="text-5xl">🃏</span>
                       <p className="text-black text-xs font-extrabold tracking-widest uppercase">Yozara</p>
                       <p className="text-yellow-900/70 text-[10px] tracking-widest">ようこそ</p>
-                      <motion.div
+                      <motion.p
                         animate={{ opacity: [0.5, 1, 0.5] }}
                         transition={{ repeat: Infinity, duration: 2 }}
                         className="absolute bottom-6 text-yellow-900/70 text-[10px] font-bold tracking-wider"
                       >
                         TAP TO SHUFFLE
-                      </motion.div>
+                      </motion.p>
                     </>
                   )}
 
@@ -282,54 +201,43 @@ export default function FortuneCard() {
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ repeat: Infinity, duration: 0.5, ease: "linear" }}
-                      className="absolute bottom-6"
                     >
-                      <Sparkles size={16} className="text-yellow-900" />
+                      <Sparkles size={20} className="text-yellow-900" />
                     </motion.div>
                   )}
                 </motion.div>
               ) : (
                 <motion.div
                   key="front"
-                  className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-yellow-400/80 shadow-2xl"
-                  style={{
-                    boxShadow: "0 0 40px 15px rgba(245,197,24,0.4), 0 0 80px 30px rgba(245,197,24,0.15)",
-                  }}
+                  className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-yellow-400/80"
+                  style={{ boxShadow: "0 0 40px 15px rgba(245,197,24,0.4), 0 0 80px 30px rgba(245,197,24,0.15)" }}
                   initial={{ opacity: 0, rotateY: -90 }}
                   animate={{ opacity: 1, rotateY: 0 }}
-                  transition={{ duration: 0.4 }}
+                  transition={{ duration: 0.5 }}
                 >
-                  {result ? (
-                    <>
-                      <Image src={img} alt={title} fill className="object-cover" sizes="180px" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-                      <div className={`absolute top-3 right-3 text-[10px] font-extrabold px-2 py-0.5 rounded-full ${resultType === "ANIME" ? "bg-brand-pink text-white" : "bg-purple-600 text-white"}`}>
-                        {resultType}
-                      </div>
-                      {result.averageScore && (
-                        <div className="absolute top-3 left-3 bg-black/60 text-yellow-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                          ⭐ {(result.averageScore / 10).toFixed(1)}
-                        </div>
-                      )}
-                      <div className="absolute bottom-0 left-0 right-0 p-3">
-                        <p className="text-white text-xs font-extrabold line-clamp-2 mb-1">{title}</p>
-                        {result.genres && (
-                          <p className="text-white/50 text-[9px]">{result.genres.slice(0, 2).join(" • ")}</p>
-                        )}
-                      </div>
-                    </>
-                  ) : (
-                    <div className="flex items-center justify-center h-full bg-[#1a0a2e]">
-                      <p className="text-white/40 text-xs">No result</p>
+                  <Image src={img} alt={title} fill className="object-cover" sizes="180px" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                  <div className={`absolute top-3 right-3 text-[10px] font-extrabold px-2 py-0.5 rounded-full ${resultType === "ANIME" ? "bg-brand-pink text-white" : "bg-purple-600 text-white"}`}>
+                    {resultType}
+                  </div>
+                  {result?.averageScore && (
+                    <div className="absolute top-3 left-3 bg-black/60 text-yellow-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      ⭐ {(result.averageScore / 10).toFixed(1)}
                     </div>
                   )}
+                  <div className="absolute bottom-0 left-0 right-0 p-3">
+                    <p className="text-white text-xs font-extrabold line-clamp-2 mb-1">{title}</p>
+                    {result?.genres && (
+                      <p className="text-white/50 text-[9px]">{result.genres.slice(0, 2).join(" • ")}</p>
+                    )}
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
           </motion.div>
         </div>
 
-        {/* Action buttons */}
+        {/* Buttons */}
         <AnimatePresence>
           {phase === "revealed" && result && (
             <motion.div
