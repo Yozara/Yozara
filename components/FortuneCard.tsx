@@ -77,7 +77,13 @@ export default function FortuneCard() {
   // Once image is loaded and we're in loading phase → go ready
   useEffect(() => {
     if (imgLoaded && phase === "loading") {
-      setPhase("ready");
+      setTimeout(() => {
+        setPhase("flipping");
+        setTimeout(() => {
+          setFlipped(true);
+          setPhase("revealed");
+        }, 600);
+      }, 1000);
     }
   }, [imgLoaded, phase]);
 
@@ -207,7 +213,7 @@ export default function FortuneCard() {
               width: 180,
               height: 260,
               zIndex: 10,
-              cursor: phase === "idle" ? "pointer" : phase === "ready" ? "pointer" : "default",
+              cursor: phase === "idle" ? "pointer" : "default",
             }}
             animate={
               phase === "shuffling"
@@ -223,7 +229,7 @@ export default function FortuneCard() {
                 ? { duration: 0.3 }
                 : {}
             }
-            onClick={phase === "idle" ? pickCard : phase === "ready" ? flipCard : undefined}
+            onClick={phase === "idle" ? pickCard : undefined}
           >
             <AnimatePresence mode="wait">
               {!flipped ? (
@@ -255,9 +261,13 @@ export default function FortuneCard() {
                     ))}
                   </div>
 
-                  <span className="text-5xl">🃏</span>
-                  <p className="text-black text-xs font-extrabold tracking-widest uppercase">Yozara</p>
-                  <p className="text-yellow-900/70 text-[10px] tracking-widest">ようこそ</p>
+                  {phase !== "shuffling" && (
+                    <>
+                      <span className="text-5xl">🃏</span>
+                      <p className="text-black text-xs font-extrabold tracking-widest uppercase">Yozara</p>
+                      <p className="text-yellow-900/70 text-[10px] tracking-widest">ようこそ</p>
+                    </>
+                  )}
 
                   {phase === "idle" && (
                     <motion.div
