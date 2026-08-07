@@ -84,7 +84,7 @@ export default function FortuneCard() {
               {[3, 2, 1].map((i) => (
                 <div
                   key={i}
-                  className="absolute rounded-2xl border border-white/10 bg-gradient-to-br from-[#1a1040] to-[#0d0820]"
+                  className="absolute rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-[#7c5a00] to-[#3d2d00]"
                   style={{
                     width: 180,
                     height: 260,
@@ -123,14 +123,14 @@ export default function FortuneCard() {
                   key="back"
                   className="absolute inset-0 rounded-2xl overflow-hidden border border-white/20 shadow-2xl shadow-purple-900/50 flex flex-col items-center justify-center gap-3"
                   style={{
-                    background: "linear-gradient(135deg, #1a0a2e 0%, #0d0820 50%, #1a0a2e 100%)",
-                  }}
+  background: "linear-gradient(135deg, #7c5a00 0%, #f5c518 40%, #c8960c 60%, #7c5a00 100%)",
+}}
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
                   {/* Decorative border */}
-                  <div className="absolute inset-2 rounded-xl border border-brand-pink/30" />
-                  <div className="absolute inset-3 rounded-lg border border-purple-500/20" />
+                  <div className="absolute inset-2 rounded-xl border border-yellow-300/60" />
+<div className="absolute inset-3 rounded-lg border border-yellow-200/30" />
 
                   {/* Pattern */}
                   <div className="absolute inset-0 opacity-10">
