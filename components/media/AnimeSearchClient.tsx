@@ -106,7 +106,7 @@ export function AnimeSearchClient() {
     <div className="min-h-screen relative">
       {/* Background image */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
-        <img src="/bg-anime.jpg" className="w-full h-full object-cover blur-[2px] scale-105" />
+        <img src="/bg-anime.png" className="w-full h-full object-cover blur-[2px] scale-105" />
         <div className="absolute inset-0 bg-black/50" />
       </div>
 
