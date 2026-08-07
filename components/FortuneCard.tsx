@@ -163,7 +163,7 @@ export default function FortuneCard() {
             onClick={phase === "idle" ? pickCard : undefined}
           >
             <AnimatePresence mode="wait">
-              {phase !== "revealed" ? (
+              {phase !== "revealed" || !result ? (
                 <motion.div
                   key="back"
                   className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-yellow-400/60 flex flex-col items-center justify-center gap-3"
