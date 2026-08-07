@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -30,92 +30,97 @@ const STARS = Array.from({ length: 20 }, (_, i) => ({
 const MOONS = ["🌙", "🌟", "⭐", "✨", "🌙", "⭐", "🌟", "✨"];
 
 export default function FortuneCard() {
-  const [phase, setPhase] = useState<"idle" | "shuffling" | "loading" | "ready" | "flipping" | "revealed">("idle");
+  const [phase, setPhase] = useState<"idle" | "shuffling" | "loading" | "flipping" | "revealed">("idle");
   const [result, setResult] = useState<MediaItem | null>(null);
   const [resultType, setResultType] = useState<"ANIME" | "MANGA">("ANIME");
   const [flipped, setFlipped] = useState(false);
   const [shuffleStep, setShuffleStep] = useState(0);
-  const [imgLoaded, setImgLoaded] = useState(false);
+
+  // Use refs to coordinate between shuffle interval and fetch
+  const fetchDone = useRef(false);
+  const shuffleDone = useRef(false);
+  const fetchedResult = useRef<MediaItem | null>(null);
+  const fetchedType = useRef<"ANIME" | "MANGA">("ANIME");
 
   const img = result?.coverImage?.extraLarge || result?.coverImage?.large || "/hero-image.jpg";
   const title = result?.title?.english || result?.title?.romaji || "???";
 
-  const pickCard = async () => {
-    if (phase !== "idle") return;
-
-    // Start shuffling animation
-    setPhase("shuffling");
-    setFlipped(false);
-    setResult(null);
-    setImgLoaded(false);
-
-    // Animate shuffle steps
-    let step = 0;
-    const shuffleInterval = setInterval(() => {
-      step++;
-      setShuffleStep(step);
-      if (step >= 6) {
-        clearInterval(shuffleInterval);
-        setPhase("loading");
-      }
-    }, 200);
-
-    // Fetch in parallel while shuffling
-    try {
-      const page = Math.floor(Math.random() * 5) + 1;
-      const type: "ANIME" | "MANGA" = Math.random() > 0.5 ? "ANIME" : "MANGA";
-      setResultType(type);
-      const data = await searchMedia(type, { sort: "POPULARITY_DESC", page });
-      const items: MediaItem[] = data?.Page?.media || [];
-      const pick = items[Math.floor(Math.random() * items.length)];
-      setResult(pick || null);
-    } catch {
-      setPhase("idle");
-    }
-  };
-
-  // Once image is loaded and we're in loading phase → go ready
-useEffect(() => {
-    if (imgLoaded && (phase === "loading" || phase === "shuffling")) {
-      const timer = setTimeout(() => {
+  const startReveal = () => {
+    // Preload image then flip
+    const src = fetchedResult.current?.coverImage?.extraLarge || fetchedResult.current?.coverImage?.large;
+    const proceed = () => {
+      setResult(fetchedResult.current);
+      setResultType(fetchedType.current);
+      setPhase("loading");
+      setTimeout(() => {
         setPhase("flipping");
         setTimeout(() => {
           setFlipped(true);
           setPhase("revealed");
         }, 600);
       }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [imgLoaded, phase]);
-  // If result set but phase still loading/shuffling, preload image
-  useEffect(() => {
-    if (!result) return;
-    const src = result.coverImage?.extraLarge || result.coverImage?.large;
+    };
+
     if (!src) {
-      setImgLoaded(true);
+      proceed();
       return;
     }
-    const image = new window.Image();
-    image.src = src;
-    image.onload = () => setImgLoaded(true);
-    image.onerror = () => setImgLoaded(true);
-  }, [result]);
 
-  const flipCard = () => {
-    if (phase !== "ready") return;
-    setPhase("flipping");
-    setTimeout(() => {
-      setFlipped(true);
-      setPhase("revealed");
-    }, 600);
+    const img = new window.Image();
+    img.onload = proceed;
+    img.onerror = proceed;
+    img.src = src;
+  };
+
+  const pickCard = async () => {
+    if (phase !== "idle") return;
+
+    // Reset refs
+    fetchDone.current = false;
+    shuffleDone.current = false;
+    fetchedResult.current = null;
+
+    setPhase("shuffling");
+    setFlipped(false);
+    setResult(null);
+    setShuffleStep(0);
+
+    // Shuffle animation — 6 steps × 200ms = 1.2s
+    let step = 0;
+    const shuffleInterval = setInterval(() => {
+      step++;
+      setShuffleStep(step);
+      if (step >= 6) {
+        clearInterval(shuffleInterval);
+        shuffleDone.current = true;
+        if (fetchDone.current) startReveal();
+      }
+    }, 200);
+
+    // Fetch
+    try {
+      const page = Math.floor(Math.random() * 5) + 1;
+      const type: "ANIME" | "MANGA" = Math.random() > 0.5 ? "ANIME" : "MANGA";
+      fetchedType.current = type;
+      const data = await searchMedia(type, { sort: "POPULARITY_DESC", page });
+      const items: MediaItem[] = data?.Page?.media || [];
+      const pick = items[Math.floor(Math.random() * items.length)] || null;
+      fetchedResult.current = pick;
+      fetchDone.current = true;
+      if (shuffleDone.current) startReveal();
+    } catch {
+      setPhase("idle");
+    }
   };
 
   const reset = () => {
     setPhase("idle");
     setFlipped(false);
     setResult(null);
-    setImgLoaded(false);
     setShuffleStep(0);
+    fetchDone.current = false;
+    shuffleDone.current = false;
+    fetchedResult.current = null;
   };
 
   const getShuffleTransform = (cardIndex: number) => {
@@ -131,6 +136,8 @@ useEffect(() => {
     return offsets[step];
   };
 
+  const isGlowing = phase === "loading" || phase === "flipping" || phase === "revealed";
+
   return (
     <section className="mb-14 px-4 sm:px-6 relative overflow-hidden">
       {/* Background stars */}
@@ -139,12 +146,7 @@ useEffect(() => {
           <motion.div
             key={s.id}
             className="absolute rounded-full bg-yellow-200"
-            style={{
-              top: s.top,
-              left: s.left,
-              width: s.size,
-              height: s.size,
-            }}
+            style={{ top: s.top, left: s.left, width: s.size, height: s.size }}
             animate={{ opacity: [0.2, 1, 0.2], scale: [1, 1.5, 1] }}
             transition={{ repeat: Infinity, duration: s.duration, delay: s.delay }}
           />
@@ -156,7 +158,6 @@ useEffect(() => {
             style={{
               top: `${10 + i * 11}%`,
               left: i % 2 === 0 ? `${2 + i * 2}%` : `${85 + (i % 3) * 4}%`,
-              opacity: 0.3,
             }}
             animate={{ y: [-4, 4, -4], opacity: [0.2, 0.5, 0.2] }}
             transition={{ repeat: Infinity, duration: 3 + i * 0.4, delay: i * 0.3 }}
@@ -176,7 +177,6 @@ useEffect(() => {
       </div>
 
       <div className="flex flex-col items-center gap-6 relative z-10">
-        {/* Card area */}
         <div className="relative flex items-center justify-center w-full h-[320px]">
 
           {/* Deck stack */}
@@ -194,11 +194,7 @@ useEffect(() => {
                       background: "linear-gradient(135deg, #7c5a00 0%, #f5c518 40%, #c8960c 60%, #7c5a00 100%)",
                       zIndex: i,
                     }}
-                    animate={{
-                      x: shuffle.x,
-                      rotate: shuffle.rotate,
-                      y: i * 3,
-                    }}
+                    animate={{ x: shuffle.x, rotate: shuffle.rotate, y: i * 3 }}
                     transition={{ duration: 0.15, ease: "easeInOut" }}
                   />
                 );
@@ -237,13 +233,18 @@ useEffect(() => {
                   key="back"
                   className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-yellow-400/60 shadow-2xl flex flex-col items-center justify-center gap-3"
                   style={{
-  background: "linear-gradient(135deg, #7c5a00 0%, #f5c518 40%, #c8960c 60%, #7c5a00 100%)",
-  boxShadow: (phase === "loading" || phase === "ready" || phase === "flipping" || phase === "revealed") ? "0 0 30px 10px rgba(245, 197, 24, 0.5), 0 0 60px 20px rgba(245, 197, 24, 0.2)" : "0 8px 32px rgba(0,0,0,0.4)",
-}}
+                    background: "linear-gradient(135deg, #7c5a00 0%, #f5c518 40%, #c8960c 60%, #7c5a00 100%)",
+                  }}
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  animate={(phase === "loading" || phase === "ready" || phase === "flipping") ? { boxShadow: ["0 0 20px 5px rgba(245,197,24,0.3)", "0 0 50px 20px rgba(245,197,24,0.7)", "0 0 20px 5px rgba(245,197,24,0.3)"] } : {}}
-transition={(phase === "loading" || phase === "ready" || phase === "flipping") ? { repeat: Infinity, duration: 1.5 } : {}}
+                  animate={isGlowing ? {
+                    boxShadow: [
+                      "0 0 20px 5px rgba(245,197,24,0.3)",
+                      "0 0 50px 20px rgba(245,197,24,0.7)",
+                      "0 0 20px 5px rgba(245,197,24,0.3)"
+                    ]
+                  } : {}}
+                  transition={isGlowing ? { repeat: Infinity, duration: 1.5 } : {}}
                 >
                   <div className="absolute inset-2 rounded-xl border border-yellow-200/60" />
                   <div className="absolute inset-3 rounded-lg border border-yellow-100/30" />
@@ -261,22 +262,20 @@ transition={(phase === "loading" || phase === "ready" || phase === "flipping") ?
                     ))}
                   </div>
 
-                  {phase !== "shuffling" && phase !== "loading" && (
+                  {/* Show card contents only when idle */}
+                  {phase === "idle" && (
                     <>
                       <span className="text-5xl">🃏</span>
                       <p className="text-black text-xs font-extrabold tracking-widest uppercase">Yozara</p>
                       <p className="text-yellow-900/70 text-[10px] tracking-widest">ようこそ</p>
+                      <motion.div
+                        animate={{ opacity: [0.5, 1, 0.5] }}
+                        transition={{ repeat: Infinity, duration: 2 }}
+                        className="absolute bottom-6 text-yellow-900/70 text-[10px] font-bold tracking-wider"
+                      >
+                        TAP TO SHUFFLE
+                      </motion.div>
                     </>
-                  )}
-
-                  {phase === "idle" && (
-                    <motion.div
-                      animate={{ opacity: [0.5, 1, 0.5] }}
-                      transition={{ repeat: Infinity, duration: 2 }}
-                      className="absolute bottom-6 text-yellow-900/70 text-[10px] font-bold tracking-wider"
-                    >
-                      TAP TO SHUFFLE
-                    </motion.div>
                   )}
 
                   {phase === "shuffling" && (
@@ -288,24 +287,13 @@ transition={(phase === "loading" || phase === "ready" || phase === "flipping") ?
                       <Sparkles size={16} className="text-yellow-900" />
                     </motion.div>
                   )}
-
-                
-                  {phase === "ready" && (
-                    <motion.div
-                      animate={{ opacity: [0.7, 1, 0.7] }}
-                      transition={{ repeat: Infinity, duration: 1 }}
-                      className="absolute bottom-6 text-yellow-900 text-[10px] font-extrabold tracking-wider"
-                    >
-                      ✨ TAP TO REVEAL
-                    </motion.div>
-                  )}
                 </motion.div>
               ) : (
                 <motion.div
                   key="front"
                   className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-yellow-400/80 shadow-2xl"
                   style={{
-                    boxShadow: "0 0 40px 15px rgba(245, 197, 24, 0.4), 0 0 80px 30px rgba(245, 197, 24, 0.15)",
+                    boxShadow: "0 0 40px 15px rgba(245,197,24,0.4), 0 0 80px 30px rgba(245,197,24,0.15)",
                   }}
                   initial={{ opacity: 0, rotateY: -90 }}
                   animate={{ opacity: 1, rotateY: 0 }}
@@ -340,17 +328,6 @@ transition={(phase === "loading" || phase === "ready" || phase === "flipping") ?
             </AnimatePresence>
           </motion.div>
         </div>
-
-        {/* Status text */}
-        {phase === "ready" && !flipped && (
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-yellow-400 text-sm font-bold text-center"
-          >
-            ✨ Your destiny is ready — tap the card to reveal!
-          </motion.p>
-        )}
 
         {/* Action buttons */}
         <AnimatePresence>
