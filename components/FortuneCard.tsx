@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { searchMedia } from "@/utils/anilist/client";
+import { getTrendingMedia } from "@/utils/anilist/client";
 import { Sparkles, RefreshCw } from "lucide-react";
 
 type MediaItem = {
@@ -102,8 +102,8 @@ export default function FortuneCard() {
       const page = Math.floor(Math.random() * 5) + 1;
       const type: "ANIME" | "MANGA" = Math.random() > 0.5 ? "ANIME" : "MANGA";
       fetchedType.current = type;
-      const data = await searchMedia(type, { sort: "POPULARITY_DESC", page });
-      const items: MediaItem[] = data?.Page?.media || [];
+      const data = await getTrendingMedia(type, page);
+      const items: MediaItem[] = data?.media || [];
       const pick = items[Math.floor(Math.random() * items.length)] || null;
       fetchedResult.current = pick;
       fetchDone.current = true;
