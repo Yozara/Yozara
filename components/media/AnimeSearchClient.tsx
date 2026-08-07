@@ -103,7 +103,13 @@ export function AnimeSearchClient() {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundImage: "url('/bg-anime.jpg')", backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed" }}>
+    <div className="min-h-screen relative">
+      {/* Background image */}
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+        <img src="/bg-anime.jpg" className="w-full h-full object-cover blur-[2px] scale-105" />
+        <div className="absolute inset-0 bg-black/50" />
+      </div>
+
       {/* Hero Section with Background */}
       <div className="relative pt-20 pb-12 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-brand-pink/10 via-transparent to-transparent pointer-events-none" />
