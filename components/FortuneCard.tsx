@@ -237,13 +237,13 @@ export default function FortuneCard() {
                   key="back"
                   className="absolute inset-0 rounded-2xl overflow-hidden border-2 border-yellow-400/60 shadow-2xl flex flex-col items-center justify-center gap-3"
                   style={{
-                    background: "linear-gradient(135deg, #7c5a00 0%, #f5c518 40%, #c8960c 60%, #7c5a00 100%)",
-                    boxShadow: phase === "ready" ? "0 0 30px 10px rgba(245, 197, 24, 0.5), 0 0 60px 20px rgba(245, 197, 24, 0.2)" : "0 8px 32px rgba(0,0,0,0.4)",
-                  }}
+  background: "linear-gradient(135deg, #7c5a00 0%, #f5c518 40%, #c8960c 60%, #7c5a00 100%)",
+  boxShadow: (phase === "loading" || phase === "ready" || phase === "flipping" || phase === "revealed") ? "0 0 30px 10px rgba(245, 197, 24, 0.5), 0 0 60px 20px rgba(245, 197, 24, 0.2)" : "0 8px 32px rgba(0,0,0,0.4)",
+}}
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  animate={phase === "ready" ? { boxShadow: ["0 0 20px 5px rgba(245,197,24,0.3)", "0 0 50px 20px rgba(245,197,24,0.7)", "0 0 20px 5px rgba(245,197,24,0.3)"] } : {}}
-                  transition={phase === "ready" ? { repeat: Infinity, duration: 1.5 } : {}}
+                  animate={(phase === "loading" || phase === "ready" || phase === "flipping") ? { boxShadow: ["0 0 20px 5px rgba(245,197,24,0.3)", "0 0 50px 20px rgba(245,197,24,0.7)", "0 0 20px 5px rgba(245,197,24,0.3)"] } : {}}
+transition={(phase === "loading" || phase === "ready" || phase === "flipping") ? { repeat: Infinity, duration: 1.5 } : {}}
                 >
                   <div className="absolute inset-2 rounded-xl border border-yellow-200/60" />
                   <div className="absolute inset-3 rounded-lg border border-yellow-100/30" />
@@ -261,7 +261,7 @@ export default function FortuneCard() {
                     ))}
                   </div>
 
-                  {phase !== "shuffling" && (
+                  {phase !== "shuffling" && phase !== "loading" && (
                     <>
                       <span className="text-5xl">🃏</span>
                       <p className="text-black text-xs font-extrabold tracking-widest uppercase">Yozara</p>
@@ -289,16 +289,7 @@ export default function FortuneCard() {
                     </motion.div>
                   )}
 
-                  {phase === "loading" && (
-                    <motion.div
-                      animate={{ opacity: [0.5, 1, 0.5] }}
-                      transition={{ repeat: Infinity, duration: 1 }}
-                      className="absolute bottom-6 text-yellow-900/70 text-[10px] font-bold tracking-wider"
-                    >
-                      LOADING...
-                    </motion.div>
-                  )}
-
+                
                   {phase === "ready" && (
                     <motion.div
                       animate={{ opacity: [0.7, 1, 0.7] }}
