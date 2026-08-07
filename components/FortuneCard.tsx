@@ -75,18 +75,18 @@ export default function FortuneCard() {
   };
 
   // Once image is loaded and we're in loading phase → go ready
-  useEffect(() => {
-    if (imgLoaded && phase === "loading") {
-      setTimeout(() => {
+useEffect(() => {
+    if (imgLoaded && (phase === "loading" || phase === "shuffling")) {
+      const timer = setTimeout(() => {
         setPhase("flipping");
         setTimeout(() => {
           setFlipped(true);
           setPhase("revealed");
         }, 600);
       }, 1000);
+      return () => clearTimeout(timer);
     }
   }, [imgLoaded, phase]);
-
   // If result set but phase still loading/shuffling, preload image
   useEffect(() => {
     if (!result) return;
