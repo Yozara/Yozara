@@ -228,23 +228,21 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
             className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
           >
             {anime.studios?.nodes && anime.studios.nodes.length > 0 && (
-              <div>
-                <h3 className="text-xl font-bold text-white mb-4">Studios</h3>
-                <div className="space-y-2">
-                  {anime.studios.nodes.map((studio: any) => (
-                    <a
-                      key={studio.id}
-                      href={studio.siteUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block p-3 rounded-lg backdrop-blur-md bg-white/5 border border-white/10 text-white/80 hover:text-brand-pink hover:border-brand-pink/50 transition-colors"
-                    >
-                      {studio.name}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
+  <div>
+    <h3 className="text-xl font-bold text-white mb-4">Studios</h3>
+    <div className="space-y-2">
+      {anime.studios.nodes.map((studio: any) => (
+        <Link
+          key={studio.id}
+          href={`/studio/${studio.id}`}
+          className="block p-3 rounded-lg backdrop-blur-md bg-white/5 border border-white/10 text-white/80 hover:text-brand-pink hover:border-brand-pink/50 transition-colors"
+        >
+          {studio.name}
+        </Link>
+      ))}
+    </div>
+  </div>
+)}
 
             {anime.genres && anime.genres.length > 0 && (
               <div>
