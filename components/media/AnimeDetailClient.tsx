@@ -10,7 +10,6 @@ import { Star, Calendar, Play, Loader, Tv } from "lucide-react";
 interface AnimeDetailClientProps {
   id: number;
 }
-
 export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
   const [anime, setAnime] = useState<any>(null);
   const [loading, setLoading] = useState(true);
