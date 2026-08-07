@@ -103,7 +103,7 @@ export function AnimeSearchClient() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0B0F19] via-[#0F1428] to-[#0B0F19]">
+    <div className="min-h-screen" style={{ backgroundImage: "url('/bg-anime.jpg')", backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed" }}>
       {/* Hero Section with Background */}
       <div className="relative pt-20 pb-12 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-brand-pink/10 via-transparent to-transparent pointer-events-none" />
