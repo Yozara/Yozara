@@ -367,7 +367,7 @@ function HeroSection({ user }: { user: User | null }) {
           transition={{ delay: 0.1 }}
           className={`${rampart.className} text-5xl md:text-7xl font-extrabold text-white mb-4 leading-tight [text-shadow:_2px_2px_0px_#000,_-2px_-2px_0px_#000,_2px_-2px_0px_#000,_-2px_2px_0px_#000]`}
         >
-          Discover the
+          Discover
           <br />
           <AnimatePresence mode="wait">
             <motion.span
