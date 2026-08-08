@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-
 export default function PikoLoader({ text = "Loading..." }: { text?: string }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3">
