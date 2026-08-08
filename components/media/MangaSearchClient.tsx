@@ -1,5 +1,5 @@
 "use client";
-
+import PikoLoader from "@/components/PikoLoader";
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { searchMedia } from "@/utils/anilist/client";
@@ -160,8 +160,7 @@ export function MangaSearchClient() {
             {/* Loading State */}
             {loading && (
               <div className="flex flex-col items-center justify-center py-20">
-                <Loader className="w-12 h-12 text-brand-pink animate-spin mb-4" />
-                <p className="text-white/60">Loading manga...</p>
+                <<PikoLoader text="Loading Manga...." />
               </div>
             )}
 
