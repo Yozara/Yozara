@@ -7,7 +7,7 @@ import { MediaCard } from "@/components/media/MediaCard";
 import { SearchBar } from "@/components/media/SearchBar";
 import { FilterPanel } from "@/components/media/FilterPanel";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Loader } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const MANGA_GENRES = [
   "Action",
@@ -160,7 +160,7 @@ export function MangaSearchClient() {
             {/* Loading State */}
             {loading && (
               <div className="flex flex-col items-center justify-center py-20">
-                <<PikoLoader text="Loading Manga...." />
+                <PikoLoader text="Loading Manga...." />
               </div>
             )}
 
