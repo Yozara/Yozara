@@ -177,7 +177,7 @@ export default function StudioPage() {
               disabled={loadingMore}
               className="flex items-center gap-2 px-8 py-3 rounded-full bg-brand-pink text-white font-bold hover:bg-brand-pink/80 transition-all"
             >
-              {loadingMore ? <Loader size={16} className="animate-spin" /> : null}
+              {loadingMore ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" /> : null}
               {loadingMore ? "Loading..." : "Load More"}
             </motion.button>
           </div>
