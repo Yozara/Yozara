@@ -4,30 +4,15 @@ import { motion } from "framer-motion";
 
 export default function PikoLoader({ text = "Loading..." }: { text?: string }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-4">
-      {/* Piko sprite animation */}
-      <div
-        style={{
-          width: 96,
-          height: 96,
-          overflow: "hidden",
-          position: "relative",
-          imageRendering: "pixelated",
-        }}
-      >
-        <div
-          style={{
-            width: "500%", // 5 frames
-            height: "100%",
-            backgroundImage: "url('/piko-walk.png')",
-            backgroundSize: "100% 100%",
-            backgroundRepeat: "no-repeat",
-            animation: "piko-walk 0.6s steps(5, end) infinite",
-          }}
-        />
-      </div>
+    <div className="flex flex-col items-center justify-center gap-3">
+      {/* Piko walking GIF */}
+      <img
+        src="/piko-walk.gif"
+        alt="Piko loading"
+        style={{ width: 100, height: 100, imageRendering: "pixelated" }}
+      />
 
-      {/* Bouncing dots */}
+      {/* Text + bouncing dots */}
       <div className="flex items-center gap-1">
         <p className="text-white/60 text-sm">{text}</p>
         <div className="flex gap-1 ml-1">
@@ -46,13 +31,6 @@ export default function PikoLoader({ text = "Loading..." }: { text?: string }) {
           ))}
         </div>
       </div>
-
-      <style>{`
-        @keyframes piko-walk {
-          from { transform: translateX(0%); }
-          to { transform: translateX(-80%); }
-        }
-      `}</style>
     </div>
   );
 }
