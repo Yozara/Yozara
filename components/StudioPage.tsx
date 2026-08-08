@@ -1,5 +1,5 @@
 "use client";
-
+import PikoLoader from "@/components/PikoLoader";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -106,8 +106,7 @@ export default function StudioPage() {
     return (
       <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader className="w-12 h-12 text-brand-pink animate-spin" />
-          <p className="text-white/60">Loading studio...</p>
+          <PikoLoader text="Loading Studio...." />
         </div>
       </div>
     );
