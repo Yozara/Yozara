@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Star, ChevronLeft, Loader } from "lucide-react";
+import { Star, ChevronLeft} from "lucide-react";
 
 const ANILIST_API_URL = "https://graphql.anilist.co";
 
@@ -105,9 +105,9 @@ export default function StudioPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
+        
           <PikoLoader text="Loading Studio...." />
-        </div>
+        
       </div>
     );
   }
