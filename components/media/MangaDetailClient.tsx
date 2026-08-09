@@ -207,6 +207,7 @@ export function MangaDetailClient({ id }: MangaDetailClientProps) {
                     {mangaDexUrl ? "Read" : "Finding manga..."}
                   </motion.a>
                 </div>
+                <MediaActions mediaId={id} mediaType="MANGA" title={title} coverImage={coverImage} />
               </motion.div>
             </div>
           </motion.div>
