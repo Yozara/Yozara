@@ -6,7 +6,8 @@ import { useEffect, useState } from "react";
 import { getMediaDetails } from "@/utils/anilist/client";
 import { motion } from "framer-motion";
 import { Star, Calendar, ExternalLink, Loader, BookOpen } from "lucide-react";
-
+import CommentSection from "@/components/CommentSection";
+import MediaActions from "@/components/MediaActions";
 interface MangaDetailClientProps {
   id: number;
 }
