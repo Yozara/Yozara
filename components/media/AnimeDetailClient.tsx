@@ -5,12 +5,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getMediaDetails } from "@/utils/anilist/client";
 import { motion } from "framer-motion";
-import { Star, Calendar, Play, Loader, Tv } from "lucide-react";
+import { Star, Calendar, Play, Tv } from "lucide-react";
 import CommentSection from "@/components/CommentSection";
 import MediaActions from "@/components/MediaActions";
+
 interface AnimeDetailClientProps {
   id: number;
 }
+
 export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
   const [anime, setAnime] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -46,9 +48,7 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <PikoLoader text="Loading anime details" />
-        </div>
+        <PikoLoader text="Loading anime details" />
       </div>
     );
   }
@@ -77,7 +77,6 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
 
   return (
     <div className="min-h-screen bg-[#0B0F19]">
-      {/* Banner */}
       {bannerImage && (
         <div className="fixed inset-0 h-96 z-0 overflow-hidden">
           <Image src={bannerImage} alt={title} fill className="object-cover" priority />
@@ -89,11 +88,13 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
 
       <div className="relative z-10 pt-20 pb-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          {/* Top grid */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12"
+            className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6"
           >
             {/* Cover */}
             <div className="md:col-span-1">
@@ -177,6 +178,9 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
                     {crunchyrollUrl ? "Watch on Crunchyroll" : "Finding anime..."}
                   </motion.a>
                 </div>
+
+                {/* Like + Watchlist */}
+                <MediaActions mediaId={id} mediaType="ANIME" title={title} coverImage={coverImage} />
               </motion.div>
             </div>
           </motion.div>
@@ -198,31 +202,23 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
                 <h3 className="text-xl font-bold text-white mb-4">Studios</h3>
                 <div className="space-y-2">
                   {anime.studios.nodes.map((studio: any) => (
-                    <Link
-                      key={studio.id}
-                      href={`/studio/${studio.id}`}
-                      className="block p-3 rounded-lg backdrop-blur-md bg-white/5 border border-white/10 text-white/80 hover:text-brand-pink hover:border-brand-pink/50 transition-colors"
-                    >
+                    <Link key={studio.id} href={`/studio/${studio.id}`} className="block p-3 rounded-lg backdrop-blur-md bg-white/5 border border-white/10 text-white/80 hover:text-brand-pink hover:border-brand-pink/50 transition-colors">
                       {studio.name}
                     </Link>
                   ))}
                 </div>
               </div>
             )}
-
             {anime.genres && anime.genres.length > 0 && (
               <div>
                 <h3 className="text-xl font-bold text-white mb-4">Genres</h3>
                 <div className="flex flex-wrap gap-2">
                   {anime.genres.map((genre: string) => (
-                    <span key={genre} className="px-3 py-1 rounded-full backdrop-blur-md bg-brand-pink/20 border border-brand-pink/50 text-brand-pink text-sm font-medium">
-                      {genre}
-                    </span>
+                    <span key={genre} className="px-3 py-1 rounded-full backdrop-blur-md bg-brand-pink/20 border border-brand-pink/50 text-brand-pink text-sm font-medium">{genre}</span>
                   ))}
                 </div>
               </div>
             )}
-
             {anime.countryOfOrigin && (
               <div>
                 <h3 className="text-xl font-bold text-white mb-4">Country</h3>
@@ -271,7 +267,7 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
 
           {/* Recommendations */}
           {anime.recommendations?.nodes && anime.recommendations.nodes.length > 0 && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.6 }}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.6 }} className="mb-12">
               <h2 className="text-2xl font-bold text-white mb-6">Similar Anime</h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {anime.recommendations.nodes.slice(0, 8).map((rec: any) => (
@@ -287,6 +283,10 @@ export function AnimeDetailClient({ id }: AnimeDetailClientProps) {
               </div>
             </motion.div>
           )}
+
+          {/* Comments */}
+          <CommentSection mediaId={id} mediaType="ANIME" />
+
         </div>
       </div>
     </div>
