@@ -18,7 +18,15 @@ import TopMangaThisWeek from "@/components/TopMangaThisWeek";
 import { Zen_Tokyo_Zoo } from "next/font/google";
 
 const rampart = Zen_Tokyo_Zoo({ subsets: ["latin"], weight: "400" });
+const router = useRouter();
 
+useEffect(() => {
+  const seen = sessionStorage.getItem("yozara_welcomed");
+  if (!seen) {
+    sessionStorage.setItem("yozara_welcomed", "1");
+    router.push("/welcome");
+  }
+}, []);
 type MediaItem = {
   id: number;
   type?: "ANIME" | "MANGA";
