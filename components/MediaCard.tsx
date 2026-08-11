@@ -84,7 +84,7 @@ export function MediaCard({
   };
 
   return (
-    <Link href={authLoaded && !user ? "/signup" : href}>
+    <div onClick={() => { if (authLoaded && !user) { window.location.href = "/signup"; } else { window.location.href = href; } }} className="cursor-pointer">
       <motion.div
         className="group relative h-full cursor-pointer"
         whileHover={{ y: -8 }}
@@ -162,6 +162,6 @@ export function MediaCard({
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none bg-gradient-to-b from-brand-pink/20 to-transparent" />
         </div>
       </motion.div>
-    </Link>
+    </div>
   );
 }
