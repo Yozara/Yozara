@@ -64,7 +64,8 @@ export default function CommentSection({
   };
 
   const submitComment = async () => {
-    if (!user || !newComment.trim()) return;
+    if (!newComment.trim()) return;
+    if (!user) { window.location.href = "/signup"; return; }
     setSubmitting(true);
     await supabase.from("comments").insert({
       user_id: user.id,
