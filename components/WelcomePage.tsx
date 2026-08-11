@@ -18,12 +18,12 @@ type MediaItem = {
 };
 
 const MOODS = [
-  { label: "Happy & Hyped ⚡", emoji: "😄", pikoImage: "/piko-face.png", reaction: "Oh you're feeling hyped today?! Let's find something that'll get your blood pumping! 🔥", genres: ["Action", "Sports"] },
-  { label: "Chill & Relaxed 🍵", emoji: "😌", pikoImage: "/piko-face.png", reaction: "Ahh a chill day I see~ Let me find you something cozy to vibe with 🌸", genres: ["Slice of Life", "Comedy"] },
-  { label: "Emotional 😭", emoji: "😢", pikoImage: "/piko-face.png", reaction: "Feeling emotional huh? I got you... prepare the tissues though 💕", genres: ["Romance", "Drama"] },
-  { label: "Dark & Edgy 🌑", emoji: "😈", pikoImage: "/piko-face.png", reaction: "Ooh dark mode activated! Let's go somewhere deep and twisted 👁️", genres: ["Psychological", "Horror"] },
-  { label: "Curious 🤔", emoji: "🧐", pikoImage: "/piko-face.png", reaction: "Big brain mode? Let's find something that'll blow your mind 🧠", genres: ["Mystery", "Sci-Fi"] },
-  { label: "Romantic 💕", emoji: "🥰", pikoImage: "/piko-face.png", reaction: "Ahhh someone's feeling lovey dovey~ lemme find you something heartwarming 💖", genres: ["Romance", "Slice of Life"] },
+  { label: "Happy & Hyped ⚡", emoji: "😄", pikoImage: "/piko-happy.png", reaction: "Oh you're feeling hyped today?! Let's find something that'll get your blood pumping! 🔥", genres: ["Action", "Sports"] },
+  { label: "Chill & Relaxed 🍵", emoji: "😌", pikoImage: "/piko-relaxed.png", reaction: "Ahh a chill day I see~ Let me find you something cozy to vibe with 🌸", genres: ["Slice of Life", "Comedy"] },
+  { label: "Emotional 😭", emoji: "😢", pikoImage: "/piko-sad.png", reaction: "Feeling emotional huh? I got you... prepare the tissues though 💕", genres: ["Romance", "Drama"] },
+  { label: "Dark & Edgy 🌑", emoji: "😈", pikoImage: "/piko-nervous.png", reaction: "Ooh dark mode activated! Let's go somewhere deep and twisted 👁️", genres: ["Psychological", "Horror"] },
+  { label: "Curious 🤔", emoji: "🧐", pikoImage: "/piko-thinking.png", reaction: "Big brain mode? Let's find something that'll blow your mind 🧠", genres: ["Mystery", "Sci-Fi"] },
+  { label: "Romantic 💕", emoji: "🥰", pikoImage: "/piko-love.png", reaction: "Ahhh someone's feeling lovey dovey~ lemme find you something heartwarming 💖", genres: ["Romance", "Slice of Life"] },
 ];
 
 const LENGTHS = [
