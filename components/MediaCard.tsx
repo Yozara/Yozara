@@ -54,6 +54,7 @@ export function MediaCard({
     e.preventDefault();
     e.stopPropagation();
     if (!user) return;
+    if (!user) { window.location.href = "/signup"; return; }
     if (liked) {
       await supabase.from("likes").delete()
         .eq("user_id", user.id).eq("media_id", id).eq("media_type", type);
@@ -67,6 +68,7 @@ export function MediaCard({
     e.preventDefault();
     e.stopPropagation();
     if (!user) return;
+    if (!user) { window.location.href = "/signup"; return; }
     if (inList) {
       await supabase.from("watchlist").delete()
         .eq("user_id", user.id).eq("media_id", id).eq("media_type", type);
