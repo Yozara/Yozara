@@ -82,7 +82,7 @@ export function MediaCard({
   };
 
   return (
-    <Link href={href}>
+    <Link href={user ? href : "/signup"}>
       <motion.div
         className="group relative h-full cursor-pointer"
         whileHover={{ y: -8 }}
