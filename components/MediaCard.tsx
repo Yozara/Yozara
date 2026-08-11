@@ -29,6 +29,7 @@ export function MediaCard({
   const [liked, setLiked] = useState(false);
   const [inList, setInList] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [authLoaded, setAuthLoaded] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
@@ -36,6 +37,7 @@ export function MediaCard({
       const { data } = await supabase.auth.getUser();
       if (!data.user) return;
       setUser(data.user);
+      setAuthLoaded(true);
 
       const { data: likeData } = await supabase
         .from("likes").select("id")
@@ -82,7 +84,7 @@ export function MediaCard({
   };
 
   return (
-    <Link href={user ? href : "/signup"}>
+    <Link href={authLoaded && !user ? "/signup" : href}>
       <motion.div
         className="group relative h-full cursor-pointer"
         whileHover={{ y: -8 }}
