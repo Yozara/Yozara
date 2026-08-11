@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { searchMedia } from "@/utils/anilist/client";
-
 type MediaItem = {
   id: number;
   type?: string;
