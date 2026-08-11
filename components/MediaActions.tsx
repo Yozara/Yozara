@@ -1,5 +1,5 @@
 "use client";
-
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { motion } from "framer-motion";
@@ -22,7 +22,7 @@ export default function MediaActions({
   const [likeCount, setLikeCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
-
+  const router = useRouter();
   useEffect(() => {
     const init = async () => {
       const { data } = await supabase.auth.getUser();
@@ -63,7 +63,7 @@ export default function MediaActions({
   }, [mediaId]);
 
   const toggleLike = async () => {
-    if (!user) return;
+    if (!user) { router.push("/signup"); return; }
     if (liked) {
       await supabase.from("likes").delete()
         .eq("user_id", user.id).eq("media_id", mediaId).eq("media_type", mediaType);
@@ -76,7 +76,7 @@ export default function MediaActions({
   };
 
   const toggleWatchlist = async () => {
-    if (!user) return;
+    if (!user) { router.push("/signup"); return; }
     if (inWatchlist) {
       await supabase.from("watchlist").delete()
         .eq("user_id", user.id).eq("media_id", mediaId).eq("media_type", mediaType);
