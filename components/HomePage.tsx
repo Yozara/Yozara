@@ -1,10 +1,10 @@
 "use client";
 
+import WheelOfFate from "@/components/WheelOfFate";
 import FortuneCard from "@/components/FortuneCard";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { motion, AnimatePresence } from "framer-motion";
@@ -34,32 +34,6 @@ type MediaItem = {
   chapters?: number;
 };
 
-const QUIZ_QUESTIONS = [
-  {
-    q: "What's your mood rn? 🎭",
-    options: ["Hype & Excited ⚡", "Chill & Cozy 🍵", "Cry my eyes out 😭", "Mind = Blown 🤯"],
-  },
-  {
-    q: "Pick your vibe 🎨",
-    options: ["Epic Battles ⚔️", "Sweet Romance 💕", "Laugh out loud 😂", "Dark & Deep 🌑"],
-  },
-  {
-    q: "How long you got? ⏱️",
-    options: ["Quick watch (1-12 eps)", "Medium (13-50 eps)", "Long haul (50+ eps)", "Ongoing 📡"],
-  },
-];
-
-const QUIZ_GENRE_MAP: Record<string, string[]> = {
-  "Hype & Excited ⚡": ["Action", "Sports"],
-  "Chill & Cozy 🍵": ["Slice of Life", "Comedy"],
-  "Cry my eyes out 😭": ["Romance", "Drama"],
-  "Mind = Blown 🤯": ["Psychological", "Sci-Fi"],
-  "Epic Battles ⚔️": ["Action", "Fantasy"],
-  "Sweet Romance 💕": ["Romance", "Slice of Life"],
-  "Laugh out loud 😂": ["Comedy", "Slice of Life"],
-  "Dark & Deep 🌑": ["Horror", "Mystery"],
-};
-
 function MediaRow({
   title, icon, items, type, loading,
 }: {
@@ -80,24 +54,15 @@ function MediaRow({
         <h2 className="text-2xl font-extrabold text-white flex items-center gap-2">
           {icon} {title}
         </h2>
-        <Link
-          href={`/${type.toLowerCase()}`}
-          className="text-brand-pink text-sm font-semibold flex items-center gap-1 hover:underline"
-        >
+        <Link href={`/${type.toLowerCase()}`} className="text-brand-pink text-sm font-semibold flex items-center gap-1 hover:underline">
           See all <ChevronRight size={15} />
         </Link>
       </div>
       <div className="relative group">
-        <button
-          onClick={() => scroll("left")}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black/70 hover:bg-brand-pink text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all -translate-x-1/2"
-        >
+        <button onClick={() => scroll("left")} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black/70 hover:bg-brand-pink text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all -translate-x-1/2">
           <ChevronLeft size={20} />
         </button>
-        <div
-          ref={scrollRef}
-          className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory px-4 sm:px-6 pb-2"
-        >
+        <div ref={scrollRef} className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory px-4 sm:px-6 pb-2">
           {loading
             ? Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="shrink-0 w-[160px] h-[240px] rounded-2xl bg-white/5 animate-pulse snap-start" />
@@ -121,19 +86,14 @@ function MediaRow({
                       )}
                       <div className="absolute bottom-3 left-3 right-3">
                         <p className="text-white text-xs font-semibold line-clamp-2 leading-tight">{title}</p>
-                        {item.seasonYear && (
-                          <p className="text-white/50 text-[10px] mt-1">{item.seasonYear}</p>
-                        )}
+                        {item.seasonYear && <p className="text-white/50 text-[10px] mt-1">{item.seasonYear}</p>}
                       </div>
                     </motion.div>
                   </Link>
                 );
               })}
         </div>
-        <button
-          onClick={() => scroll("right")}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black/70 hover:bg-brand-pink text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all translate-x-1/2"
-        >
+        <button onClick={() => scroll("right")} className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black/70 hover:bg-brand-pink text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all translate-x-1/2">
           <ChevronRight size={20} />
         </button>
       </div>
@@ -180,45 +140,6 @@ function RecentlyViewed() {
 
 function WhatShouldIWatch() {
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<string[]>([]);
-  const [result, setResult] = useState<MediaItem | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const handleAnswer = useCallback(async (answer: string) => {
-    const newAnswers = [...answers, answer];
-    setAnswers(newAnswers);
-
-    if (step < QUIZ_QUESTIONS.length - 1) {
-      setStep(step + 1);
-    } else {
-      setLoading(true);
-      const genres = newAnswers.flatMap((a) => QUIZ_GENRE_MAP[a] || []);
-      const genre = genres[0] || "Action";
-      try {
-        const data = await searchMedia("ANIME", { genre: [genre], sort: "POPULARITY_DESC", page: 1 });
-        const items: MediaItem[] = data?.Page?.media || [];
-        const random = items[Math.floor(Math.random() * Math.min(items.length, 10))];
-        setResult(random || null);
-      } catch {
-        setResult(null);
-      } finally {
-        setLoading(false);
-      }
-    }
-  }, [answers, step]);
-
-  const reset = () => {
-    setStep(0);
-    setAnswers([]);
-    setResult(null);
-    setLoading(false);
-  };
-
-  const close = () => {
-    setOpen(false);
-    setTimeout(reset, 300);
-  };
 
   return (
     <>
@@ -237,93 +158,20 @@ function WhatShouldIWatch() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
-            onClick={close}
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm overflow-y-auto"
+            onClick={() => setOpen(false)}
           >
             <motion.div
               initial={{ scale: 0.85, opacity: 0, y: 40 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
+              animate={{ scale: 1, opacity: 1, y: 40 }}
               exit={{ scale: 0.85, opacity: 0, y: 40 }}
-              className="bg-[#0F1428] border border-white/10 rounded-3xl p-6 max-w-md w-full relative"
+              className="relative max-w-3xl mx-auto my-10 bg-[#0F1428] border border-white/10 rounded-3xl p-6"
               onClick={(e) => e.stopPropagation()}
             >
-              <button onClick={close} className="absolute top-4 right-4 text-white/40 hover:text-white">
+              <button onClick={() => setOpen(false)} className="absolute top-4 right-4 text-white/40 hover:text-white z-10">
                 <X size={20} />
               </button>
-
-              {!result && !loading && (
-                <>
-                  <div className="mb-6 text-center">
-                    <p className="text-white/50 text-sm mb-1">Question {step + 1} of {QUIZ_QUESTIONS.length}</p>
-                    <div className="w-full bg-white/10 rounded-full h-1.5 mb-4">
-                      <div
-                        className="bg-brand-pink h-1.5 rounded-full transition-all"
-                        style={{ width: `${((step + 1) / QUIZ_QUESTIONS.length) * 100}%` }}
-                      />
-                    </div>
-                    <h3 className="text-white text-xl font-extrabold">{QUIZ_QUESTIONS[step].q}</h3>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    {QUIZ_QUESTIONS[step].options.map((opt) => (
-                      <motion.button
-                        key={opt}
-                        whileHover={{ scale: 1.04 }}
-                        whileTap={{ scale: 0.97 }}
-                        onClick={() => handleAnswer(opt)}
-                        className="bg-white/5 hover:bg-brand-pink/20 border border-white/10 hover:border-brand-pink/50 text-white text-sm font-semibold rounded-2xl p-4 text-left transition-all"
-                      >
-                        {opt}
-                      </motion.button>
-                    ))}
-                  </div>
-                </>
-              )}
-
-              {loading && (
-                <div className="text-center py-12">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                    className="w-12 h-12 border-4 border-brand-pink border-t-transparent rounded-full mx-auto mb-4"
-                  />
-                  <p className="text-white/60">Finding the perfect anime for you...</p>
-                </div>
-              )}
-
-              {result && !loading && (
-                <div className="text-center">
-                  <p className="text-brand-pink font-bold text-sm mb-3">✨ We think you'll love...</p>
-                  <div className="relative w-40 h-56 mx-auto rounded-2xl overflow-hidden mb-4 shadow-2xl">
-                    <Image
-                      src={result.coverImage?.extraLarge || result.coverImage?.large || "/hero-image.jpg"}
-                      alt={result.title?.english || result.title?.romaji || ""}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <h3 className="text-white text-lg font-extrabold mb-1">
-                    {result.title?.english || result.title?.romaji}
-                  </h3>
-                  {result.genres && (
-                    <p className="text-white/40 text-xs mb-4">{result.genres.slice(0, 3).join(" • ")}</p>
-                  )}
-                  <div className="flex gap-3 justify-center">
-                    <Link
-                      href={`/anime/${result.id}`}
-                      onClick={close}
-                      className="bg-brand-pink text-white px-5 py-2.5 rounded-full font-bold text-sm hover:bg-brand-pink/80 transition-all"
-                    >
-                      View Anime
-                    </Link>
-                    <button
-                      onClick={reset}
-                      className="bg-white/10 text-white px-5 py-2.5 rounded-full font-bold text-sm hover:bg-white/20 transition-all"
-                    >
-                      Try Again
-                    </button>
-                  </div>
-                </div>
-              )}
+              <WheelOfFate />
             </motion.div>
           </motion.div>
         )}
@@ -400,31 +248,19 @@ function HeroSection({ user }: { user: User | null }) {
         >
           {user ? (
             <>
-              <Link
-                href="/anime"
-                className="flex items-center gap-2 px-7 py-3.5 rounded-full bg-brand-pink text-white font-bold hover:bg-brand-pink/80 transition-all shadow-lg shadow-brand-pink/30"
-              >
+              <Link href="/anime" className="flex items-center gap-2 px-7 py-3.5 rounded-full bg-brand-pink text-white font-bold hover:bg-brand-pink/80 transition-all shadow-lg shadow-brand-pink/30">
                 <Tv size={18} /> Browse Anime
               </Link>
-              <Link
-                href="/manga"
-                className="flex items-center gap-2 px-7 py-3.5 rounded-full bg-white/10 border border-white/20 text-white font-bold hover:bg-white/20 transition-all backdrop-blur-sm"
-              >
+              <Link href="/manga" className="flex items-center gap-2 px-7 py-3.5 rounded-full bg-white/10 border border-white/20 text-white font-bold hover:bg-white/20 transition-all backdrop-blur-sm">
                 <BookOpen size={18} /> Browse Manga
               </Link>
             </>
           ) : (
             <>
-              <Link
-                href="/signup"
-                className="flex items-center gap-2 px-7 py-3.5 rounded-full bg-brand-pink text-white font-bold hover:bg-brand-pink/80 transition-all shadow-lg shadow-brand-pink/30"
-              >
+              <Link href="/signup" className="flex items-center gap-2 px-7 py-3.5 rounded-full bg-brand-pink text-white font-bold hover:bg-brand-pink/80 transition-all shadow-lg shadow-brand-pink/30">
                 <Zap size={18} /> Get Started Free
               </Link>
-              <Link
-                href="/anime"
-                className="flex items-center gap-2 px-7 py-3.5 rounded-full bg-white/10 border border-white/20 text-white font-bold hover:bg-white/20 transition-all backdrop-blur-sm"
-              >
+              <Link href="/anime" className="flex items-center gap-2 px-7 py-3.5 rounded-full bg-white/10 border border-white/20 text-white font-bold hover:bg-white/20 transition-all backdrop-blur-sm">
                 <Compass size={18} /> Explore Now
               </Link>
             </>
@@ -502,6 +338,7 @@ export default function HomePage() {
       <div className="max-w-screen-xl mx-auto pt-10">
         <RecentlyViewed />
         <FortuneCard />
+
         <MediaRow
           title="Trending Anime "
           icon={<Flame size={22} className="text-orange-400" />}
@@ -519,10 +356,7 @@ export default function HomePage() {
         />
 
         <TopAnimeThisWeek />
-
         <TopMangaThisWeek />
-
-        
 
         <MediaRow
           title="Currently Airing "
