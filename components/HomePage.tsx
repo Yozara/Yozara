@@ -4,6 +4,7 @@ import FortuneCard from "@/components/FortuneCard";
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,16 +16,9 @@ import { getTrendingMedia, searchMedia } from "@/utils/anilist/client";
 import TopAnimeThisWeek from "@/components/TopAnimeThisWeek";
 import TopMangaThisWeek from "@/components/TopMangaThisWeek";
 import { Zen_Tokyo_Zoo } from "next/font/google";
-const rampart = Zen_Tokyo_Zoo({ subsets: ["latin"], weight: "400" });
-const router = useRouter();
 
-useEffect(() => {
-  const seen = sessionStorage.getItem("yozara_welcomed");
-  if (!seen) {
-    sessionStorage.setItem("yozara_welcomed", "1");
-    router.push("/welcome");
-  }
-}, []);
+const rampart = Zen_Tokyo_Zoo({ subsets: ["latin"], weight: "400" });
+
 type MediaItem = {
   id: number;
   type?: "ANIME" | "MANGA";
@@ -298,6 +292,7 @@ function HeroSection({ user }: { user: User | null }) {
 }
 
 export default function HomePage() {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [trendingAnime, setTrendingAnime] = useState<MediaItem[]>([]);
   const [trendingManga, setTrendingManga] = useState<MediaItem[]>([]);
@@ -307,6 +302,15 @@ export default function HomePage() {
   const [loadingManga, setLoadingManga] = useState(true);
   const [loadingTop, setLoadingTop] = useState(true);
   const [loadingAiring, setLoadingAiring] = useState(true);
+
+  // Redirect to welcome page on first visit
+  useEffect(() => {
+    const seen = sessionStorage.getItem("yozara_welcomed");
+    if (!seen) {
+      sessionStorage.setItem("yozara_welcomed", "1");
+      router.push("/welcome");
+    }
+  }, []);
 
   useEffect(() => {
     const supabase = createClient();
