@@ -109,9 +109,9 @@ export default function WelcomePage() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-pink/5 rounded-full blur-3xl pointer-events-none" />
 
       {/* Skip button */}
-      <button onClick={skip} className="absolute top-6 right-6 text-white/30 hover:text-white/60 text-sm transition-colors z-10">
-        Skip →
-      </button>
+      <button onClick={skip} className="absolute top-6 right-6 text-white/60 hover:text-white text-sm transition-colors z-50 bg-white/5 px-4 py-2 rounded-full border border-white/10 hover:bg-white/10">
+  Skip →
+</button>
 
       <div className="relative z-10 w-full max-w-lg px-4">
         <AnimatePresence mode="wait">
