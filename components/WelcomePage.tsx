@@ -40,8 +40,7 @@ export default function WelcomePage() {
   const [selectedMood, setSelectedMood] = useState<typeof MOODS[0] | null>(null);
   const [result, setResult] = useState<MediaItem | null>(null);
   const [resultType, setResultType] = useState<"ANIME" | "MANGA">("ANIME");
-  const [recentItems, setRecentItems] = useState<{ id: number; type: string; title: string; image: string }[]>([]);
-  const [pikoTextIndex, setPikoTextIndex] = useState(0);
+  const [recentItems, setRecentItems] = useState<{ id: number; type: string; title: string; image: string }[]>([])
   const [displayedText, setDisplayedText] = useState("");
 
   useEffect(() => {
