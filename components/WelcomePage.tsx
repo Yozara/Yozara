@@ -138,24 +138,20 @@ export default function WelcomePage() {
       </button>
 
       {/* ── LEFT: Piko ── */}
-      <div className="relative z-10 flex items-end justify-center w-1/3 min-h-screen pb-0 pl-8">
-        <AnimatePresence mode="wait">
-          <motion.img
-            key={pikoImage}
-            src={pikoImage}
-            alt="Piko"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0, ...pikoAnimate }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={pikoTransition}
-            style={{
-              imageRendering: "pixelated",
-              width: "min(320px, 90%)",
-              height: "auto",
-              objectFit: "contain",
-            }}
-          />
-        </AnimatePresence>
+      <div className="relative z-10 flex items-center justify-center w-1/3 min-h-screen pl-8">
+        <motion.img
+  key={pikoImage}
+  src={pikoImage}
+  alt="Piko"
+  animate={pikoAnimate}
+  transition={pikoTransition}
+  style={{
+    imageRendering: "pixelated",
+    width: "min(320px, 90%)",
+    height: "auto",
+    objectFit: "contain",
+  }}
+/>
       </div>
 
       {/* ── RIGHT: Content ── */}
