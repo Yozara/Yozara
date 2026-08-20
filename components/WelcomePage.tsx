@@ -102,12 +102,12 @@ export default function WelcomePage() {
   const title = result?.title?.english || result?.title?.romaji || "???";
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center relative overflow-hidden">
-      {/* Background blobs */}
-      <div className="absolute top-20 left-10 w-96 h-96 bg-brand-pink/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-pink/5 rounded-full blur-3xl pointer-events-none" />
-
+   <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+  {/* Background image */}
+  <div className="absolute inset-0 z-0">
+    <img src="/bg-home.png" alt="bg" className="w-full h-full object-cover" style={{ filter: "blur(3px)", transform: "scale(1.05)" }} />
+    <div className="absolute inset-0 bg-black/60" />
+  </div>
       {/* Skip button */}
       <button onClick={skip} className="absolute top-6 right-6 text-white/60 hover:text-white text-sm transition-colors z-50 bg-white/5 px-4 py-2 rounded-full border border-white/10 hover:bg-white/10">
   Skip →
