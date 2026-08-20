@@ -114,12 +114,12 @@ export default function WelcomePage() {
     : { y: [0, -10, 0] };
 
   const pikoTransition = phase === "loading"
-    ? { repeat: Infinity, duration: 0.5 }
-    : phase === "piko-react"
-    ? { repeat: Infinity, duration: 0.6 }
-    : phase === "result"
-    ? { repeat: Infinity, duration: 1.5 }
-    : { repeat: Infinity, duration: 2, ease: "easeInOut" };
+  ? { repeat: Infinity, duration: 0.5 }
+  : phase === "piko-react"
+  ? { repeat: Infinity, duration: 0.6 }
+  : phase === "result"
+  ? { repeat: Infinity, duration: 1.5 }
+  : { repeat: Infinity, duration: 2, ease: "easeInOut" as const };
 
   return (
     <div className="min-h-screen flex relative overflow-hidden">
