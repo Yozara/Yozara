@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { searchMedia } from "@/utils/anilist/client";
@@ -114,12 +115,12 @@ export default function WelcomePage() {
     : { y: [0, -10, 0] };
 
   const pikoTransition = phase === "loading"
-  ? { repeat: Infinity, duration: 0.5 }
-  : phase === "piko-react"
-  ? { repeat: Infinity, duration: 0.6 }
-  : phase === "result"
-  ? { repeat: Infinity, duration: 1.5 }
-  : { repeat: Infinity, duration: 2, ease: "easeInOut" as const };
+    ? { repeat: Infinity, duration: 0.5 }
+    : phase === "piko-react"
+    ? { repeat: Infinity, duration: 0.6 }
+    : phase === "result"
+    ? { repeat: Infinity, duration: 1.5 }
+    : { repeat: Infinity, duration: 2, ease: "easeInOut" };
 
   return (
     <div className="min-h-screen flex relative overflow-hidden">
@@ -138,7 +139,7 @@ export default function WelcomePage() {
       </button>
 
       {/* ── LEFT: Piko ── */}
-      <div className="relative z-10 flex items-center justify-center w-1/3 min-h-screen pl-8">
+      <div className="relative z-10 flex items-end justify-center w-1/3 min-h-screen pb-0 pl-8">
         <AnimatePresence mode="wait">
           <motion.img
             key={pikoImage}
