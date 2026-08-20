@@ -105,7 +105,7 @@ export default function WelcomePage() {
    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
   {/* Background image */}
   <div className="absolute inset-0 z-0">
-    <img src="/bg-home.png" alt="bg" className="w-full h-full object-cover" style={{ filter: "blur(3px)", transform: "scale(1.05)" }} />
+    <img src="/bg-home12.png" alt="bg" className="w-full h-full object-cover" style={{ filter: "blur(3px)", transform: "scale(1.05)" }} />
     <div className="absolute inset-0 bg-black/60" />
   </div>
       {/* Skip button */}
