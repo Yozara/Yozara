@@ -1,4 +1,3 @@
-
 "use client";
 import WatchlistPanel from "@/components/WatchlistPanel";
 import Image from "next/image";
