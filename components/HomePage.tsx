@@ -18,7 +18,7 @@ import TopMangaThisWeek from "@/components/TopMangaThisWeek";
 import { Zen_Tokyo_Zoo } from "next/font/google";
 
 const rampart = Zen_Tokyo_Zoo({ subsets: ["latin"], weight: "400" });
-const [checking, setChecking] = useState(true);
+
 type MediaItem = {
   id: number;
   type?: "ANIME" | "MANGA";
@@ -302,7 +302,7 @@ export default function HomePage() {
   const [loadingManga, setLoadingManga] = useState(true);
   const [loadingTop, setLoadingTop] = useState(true);
   const [loadingAiring, setLoadingAiring] = useState(true);
-
+  const [checking, setChecking] = useState(true);
   // Redirect to welcome page on first visit
   useEffect(() => {
   const seen = sessionStorage.getItem("yozara_welcomed");
