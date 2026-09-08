@@ -119,18 +119,28 @@ function ThoughtBubble({ children, color }: { children: React.ReactNode; color?:
   return (
     <div className="relative mb-5">
       <motion.div
-        className="relative backdrop-blur-md border rounded-[2rem] px-6 py-4 shadow-xl"
+        className="relative rounded-2xl px-6 py-4 shadow-2xl border-4"
         style={{
-          background: `linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))`,
-          borderColor: color ? `${color}50` : "rgba(255,255,255,0.2)",
-          boxShadow: color ? `0 0 20px ${color}20` : undefined,
+          background: color
+            ? `linear-gradient(135deg, ${color}30, #1a0a2e)`
+            : "linear-gradient(135deg, #1e1040, #0d0820)",
+          borderColor: color ? color : "#FF85BB",
+          boxShadow: color
+            ? `4px 4px 0px ${color}, 0 0 20px ${color}40`
+            : `4px 4px 0px #FF85BB, 0 0 20px rgba(255,133,187,0.3)`,
         }}
       >
-        {children}
+        {/* Comic halftone dots */}
+        <div className="absolute inset-0 rounded-2xl opacity-10 pointer-events-none"
+          style={{
+            backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)",
+            backgroundSize: "12px 12px",
+          }}
+        />
+        <div className="relative z-10">
+          {children}
+        </div>
       </motion.div>
-      <div className="absolute -bottom-3 left-10 w-5 h-5 rounded-full bg-white/10 border border-white/20" style={{ borderColor: color ? `${color}40` : undefined }} />
-      <div className="absolute -bottom-6 left-7 w-3 h-3 rounded-full bg-white/8 border border-white/15" />
-      <div className="absolute -bottom-8 left-5 w-2 h-2 rounded-full bg-white/5" />
     </div>
   );
 }
