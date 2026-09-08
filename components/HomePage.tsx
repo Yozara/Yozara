@@ -18,7 +18,7 @@ import TopMangaThisWeek from "@/components/TopMangaThisWeek";
 import { Zen_Tokyo_Zoo } from "next/font/google";
 
 const rampart = Zen_Tokyo_Zoo({ subsets: ["latin"], weight: "400" });
-
+const [checking, setChecking] = useState(true);
 type MediaItem = {
   id: number;
   type?: "ANIME" | "MANGA";
@@ -305,12 +305,14 @@ export default function HomePage() {
 
   // Redirect to welcome page on first visit
   useEffect(() => {
-    const seen = sessionStorage.getItem("yozara_welcomed");
-    if (!seen) {
-      sessionStorage.setItem("yozara_welcomed", "1");
-      router.push("/welcome");
-    }
-  }, []);
+  const seen = sessionStorage.getItem("yozara_welcomed");
+  if (!seen) {
+    sessionStorage.setItem("yozara_welcomed", "1");
+    router.push("/welcome");
+  } else {
+    setChecking(false);
+  }
+}, []);
 
   useEffect(() => {
     const supabase = createClient();
@@ -340,7 +342,7 @@ export default function HomePage() {
       setLoadingAiring(false);
     }).catch(() => setLoadingAiring(false));
   }, []);
-
+  if (checking) return null;
   return (
     <div className="min-h-screen bg-[#0B0F19]">
       <HeroSection user={user} />
