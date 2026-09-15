@@ -4,7 +4,6 @@ import FortuneCard from "@/components/FortuneCard";
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { motion, AnimatePresence } from "framer-motion";
@@ -302,17 +301,7 @@ export default function HomePage() {
   const [loadingManga, setLoadingManga] = useState(true);
   const [loadingTop, setLoadingTop] = useState(true);
   const [loadingAiring, setLoadingAiring] = useState(true);
-  const [checking, setChecking] = useState(true);
-  // Redirect to welcome page on first visit
-  useEffect(() => {
-  const seen = sessionStorage.getItem("yozara_welcomed");
-  if (!seen) {
-    sessionStorage.setItem("yozara_welcomed", "1");
-    router.push("/welcome");
-  } else {
-    setChecking(false);
-  }
-}, []);
+
 
   useEffect(() => {
     const supabase = createClient();
@@ -342,7 +331,6 @@ export default function HomePage() {
       setLoadingAiring(false);
     }).catch(() => setLoadingAiring(false));
   }, []);
-  if (checking) return null;
   return (
     <div className="min-h-screen bg-[#0B0F19]">
       <HeroSection user={user} />
