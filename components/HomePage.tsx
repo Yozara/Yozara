@@ -291,7 +291,7 @@ function HeroSection({ user }: { user: User | null }) {
 }
 
 export default function HomePage() {
-  const router = useRouter();
+
   const [user, setUser] = useState<User | null>(null);
   const [trendingAnime, setTrendingAnime] = useState<MediaItem[]>([]);
   const [trendingManga, setTrendingManga] = useState<MediaItem[]>([]);
