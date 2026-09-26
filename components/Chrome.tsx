@@ -3,7 +3,6 @@
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import PikoChat from "@/components/PikoChat";
 export default function Chrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAuthRoute = ["/login", "/signup", "/onboarding", "/welcome"].includes(pathname);
@@ -14,7 +13,6 @@ export default function Chrome({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Navbar />
-      <PikoChat />
       <main className="flex-grow">{children}</main>
       <Footer />
     </>
