@@ -16,7 +16,6 @@ import TopAnimeThisWeek from "@/components/TopAnimeThisWeek";
 import TopMangaThisWeek from "@/components/TopMangaThisWeek";
 import { Zen_Tokyo_Zoo } from "next/font/google";
 const rampart = Zen_Tokyo_Zoo({ subsets: ["latin"], weight: "400" });
-
 type MediaItem = {
   id: number;
   type?: "ANIME" | "MANGA";
