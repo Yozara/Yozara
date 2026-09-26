@@ -1,4 +1,5 @@
 "use client";
+
 import WheelOfFate from "@/components/WheelOfFate";
 import FortuneCard from "@/components/FortuneCard";
 import { useEffect, useState, useRef } from "react";
@@ -291,7 +292,6 @@ function HeroSection({ user }: { user: User | null }) {
 }
 
 export default function HomePage() {
-
   const [user, setUser] = useState<User | null>(null);
   const [trendingAnime, setTrendingAnime] = useState<MediaItem[]>([]);
   const [trendingManga, setTrendingManga] = useState<MediaItem[]>([]);
@@ -301,7 +301,6 @@ export default function HomePage() {
   const [loadingManga, setLoadingManga] = useState(true);
   const [loadingTop, setLoadingTop] = useState(true);
   const [loadingAiring, setLoadingAiring] = useState(true);
-
 
   useEffect(() => {
     const supabase = createClient();
@@ -331,6 +330,7 @@ export default function HomePage() {
       setLoadingAiring(false);
     }).catch(() => setLoadingAiring(false));
   }, []);
+
   return (
     <div className="min-h-screen bg-[#0B0F19]">
       <HeroSection user={user} />
@@ -340,7 +340,7 @@ export default function HomePage() {
         <FortuneCard />
 
         <MediaRow
-          title="Trending Anime "
+          title="Trending Anime 🔥"
           icon={<Flame size={22} className="text-orange-400" />}
           items={trendingAnime}
           type="ANIME"
@@ -348,7 +348,7 @@ export default function HomePage() {
         />
 
         <MediaRow
-          title="Trending Manga "
+          title="Trending Manga 📖"
           icon={<BookOpen size={22} className="text-purple-400" />}
           items={trendingManga}
           type="MANGA"
@@ -359,7 +359,7 @@ export default function HomePage() {
         <TopMangaThisWeek />
 
         <MediaRow
-          title="Currently Airing "
+          title="Currently Airing 📡"
           icon={<Tv size={22} className="text-green-400" />}
           items={airing}
           type="ANIME"
@@ -367,7 +367,7 @@ export default function HomePage() {
         />
 
         <MediaRow
-          title="Top Rated All Time "
+          title="Top Rated All Time ⭐"
           icon={<Star size={22} className="text-yellow-400" />}
           items={topRated}
           type="ANIME"
