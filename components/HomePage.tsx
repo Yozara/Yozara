@@ -1,5 +1,4 @@
 "use client";
-
 import WheelOfFate from "@/components/WheelOfFate";
 import FortuneCard from "@/components/FortuneCard";
 import { useEffect, useState, useRef } from "react";
