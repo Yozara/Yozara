@@ -17,3 +17,4 @@ export default function Chrome({ children }: { children: React.ReactNode }) {
       <Footer />
     </>
   );
+}
