@@ -1,5 +1,5 @@
 "use client";
-
+import PikoChat from "@/components/PikoChat";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -15,6 +15,8 @@ export default function Chrome({ children }: { children: React.ReactNode }) {
       <Navbar />
       <main className="flex-grow">{children}</main>
       <Footer />
+<PikoChat />
+<main className="flex-grow">{children}</main>
     </>
   );
 }
